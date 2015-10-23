@@ -29,5 +29,7 @@ This App is powered by
 
 ##Contact the Developer
 [LinkedIn](https://www.linkedin.com/in/josiahgallen)
+
 [Twitter](https://twitter.com/jygajojo)
+
 email - josiah_g_allen@yahoo.com
