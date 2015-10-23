@@ -12,7 +12,7 @@ I will accomplish this by integrating the Google API along with yelp and possibl
 The user stories along with the current tasks and project progress are all avaliable on my [Trello Board](https://trello.com/b/rW9B1Q1Z/spottrip).
 
 ##Wireframes
-The wireframes won't be installed until Thursday.
+[SpotTrip WireFrames PDF](/images/SpotTripWireFrames.pdf)
 
 ##Models
 The Models won't be installed until Thursday.
