@@ -18,4 +18,16 @@ The user stories along with the current tasks and project progress are all avali
 The Models won't be installed until Thursday.
 
 ##APIs, Plugins, Libraries, and Frameworks
-These items won't be installed until Thursday.
+This App is powered by 
+  +React
+  +Backbone
+  +jquery
+  +Bootstrap for React
+  +Parse
+  +FilePicker
+  +Google API
+
+##Contact the Developer
+[LinkedIn](https://www.linkedin.com/in/josiahgallen)
+[Twitter](https://twitter.com/jygajojo)
+email - josiah_g_allen@yahoo.com
