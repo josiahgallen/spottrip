@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>SpotTrip</title>
+	<meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/styles/main.sass.css">
 </head>
 <body>
+	<nav id="nav"></nav>
+	<main id="app"></main>
+	
+	<script src="//www.parsecdn.com/js/parse-1.6.4.min.js"></script>
 
-<script type="text/javascript" src="/scripts/bundle.js"></script>
-<script type="text/javascript" src="http://api.filepicker.io/v2/filepicker.js"></script>
-<input type="filepicker" data-fp-apikey="Aji4dUx0TpWeSRAjDD8Ssz" onchange="alert(event.fpfile.url)">
+	<script type="text/javascript" src="/scripts/bundle.js"></script>
+
+	<script type="text/javascript" src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="http://api.filepicker.io/v2/filepicker.js"></script>
+
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO2CxRmC9ELSKLHLHrMbSWdevedztLO2o&	callback=initMap&libraries=places,drawing"async defer></script>
 </body>
 </html>

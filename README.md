@@ -22,11 +22,11 @@ This App is powered by:
 
 *React
 *Backbone
-*jquery
-*Bootstrap for React
+*jQuery
+*Bootstrap
 *Parse
 *FilePicker
-*Google API
+*Google Maps API
 
 ##Contact the Developer
 [LinkedIn](https://www.linkedin.com/in/josiahgallen)

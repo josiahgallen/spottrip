@@ -30,9 +30,11 @@
   },
   "dependencies": {
     "backbone": "^1.2.3",
+    "bootstrap": "^3.3.5",
     "gulp-ignore": "^2.0.1",
     "jquery": "^2.1.4",
     "react": "^0.14.0",
+    "react-bootstrap": "^0.27.2",
     "react-dom": "^0.14.0"
   }
 }
