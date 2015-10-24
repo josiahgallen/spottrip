@@ -15,17 +15,17 @@ The user stories along with the current tasks and project progress are all avali
 [SpotTrip WireFrames PDF](/images/SpotTripWireFrames.pdf)
 
 ##Models
-The Models won't be installed until Thursday.
+[SpotTrip Data Models PDF](/images/SpotTripDataModels.pdf)
 
 ##APIs, Plugins, Libraries, and Frameworks
 This App is powered by 
-  +React
-  +Backbone
-  +jquery
-  +Bootstrap for React
-  +Parse
-  +FilePicker
-  +Google API
+  -React
+  -Backbone
+  -jquery
+  -Bootstrap for React
+  -Parse
+  -FilePicker
+  -Google API
 
 ##Contact the Developer
 [LinkedIn](https://www.linkedin.com/in/josiahgallen)
