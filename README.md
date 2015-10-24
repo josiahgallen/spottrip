@@ -19,6 +19,7 @@ The user stories along with the current tasks and project progress are all avali
 
 ##APIs, Plugins, Libraries, and Frameworks
 This App is powered by:
+
 *React
 *Backbone
 *jquery
