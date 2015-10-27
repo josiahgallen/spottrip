@@ -4,12 +4,31 @@ var Backbone = require('backbone');
 require('bootstrap');
 
 module.exports = React.createClass({
+	componentWillMount: function() {
+			this.props.router.on('route', () => {
+				this.forceUpdate();
+		});
+	},
 	componentDidMount: function(){
 		$(document).ready(function(){
 			$('.dropdown-toggle').dropdown();
 		})
 	},
 	render: function() {
+		var currentUser = Parse.User.current();
+		var dropDownLinks = [];
+		var links = [];
+
+		if(Parse.User.current()) {
+			dropDownLinks.push(<li key="profileLink"><a href="#profile">Profile</a></li>);
+			dropDownLinks.push(<li key="separator1" role="separator" className="divider"></li>);
+			dropDownLinks.push(<li key="logoutLink"><a href="#" onClick={this.logout}>Logout</a></li>);
+			links.push(<li key="newTrip"><a href="#profile">Create New Trip</a></li>);
+		} else {
+			dropDownLinks.push(<li key="registerLink"><a href="#register">Register</a></li>);
+			dropDownLinks.push(<li key="loginLink"><a href="#login">Login</a></li>);
+		}
+
 		return (
 			<nav className="navbar navbar-default">
 				<div className="container-fluid">
@@ -20,23 +39,27 @@ module.exports = React.createClass({
 							<span className="icon-bar"></span>
 							<span className="icon-bar"></span>
 						</button>
-						<a className="navbar-brand" href="#">SpotTrip</a>
-					</div>				
+						<a className="navbar-brand" href="#"><strong>SpotTrip</strong></a>
+					</div>
+					<div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">			
 					<ul className="nav navbar-nav navbar-right">
-						<li><a href="#">Link</a></li>
+						{links}
 						<li className="dropdown">
-							<a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span className="caret"></span></a>
+							<a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{currentUser ? currentUser.get('firstName')+' '+ currentUser.get('lastName'): 'Start Your Trip'} <span className="caret"></span></a>
 							<ul className="dropdown-menu">
-								<li><a href="#">Action</a></li>
-								<li><a href="#">Another action</a></li>
-								<li><a href="#">Something else here</a></li>
-								<li role="separator" className="divider"></li>
-								<li><a href="#">Separated link</a></li>
+								{dropDownLinks}
 							</ul>
 						</li>
 					</ul>
+					</div>
 				</div>
 			</nav>
 		)
-	} 
+	},
+	logout: function(e) {
+		e.preventDefault();
+		Parse.User.logOut();
+		this.props.router.navigate('', {trigger: true});
+		console.log('logout');
+	}
 });

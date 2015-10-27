@@ -1,9 +1,48 @@
+@import url(https://fonts.googleapis.com/css?family=Grand+Hotel);
 html, body {
   	height: 100%;
   	margin: 0;
   	padding: 0;
+  	.btn {
+	float: right;
+}
 }
 #map {
   	height: 50%;
   	width: 50%;
+}
+
+.navbar-brand {
+	font-family: 'Grand Hotel', cursive;
+	font-size: 2em;
+}
+ h1 {
+ 	text-align: center;
+ 	font-family: 'Grand Hotel', cursive;
+ }
+ .panel-body {
+ 	height: 30em;
+ 	>div:nth-child(2) {
+ 		height: 100%
+ 	}
+ }
+
+ #tripListWell {
+ 	height: 50em;
+ 	overflow: scroll;
+ }
+.floating-panel {
+	position: absolute;
+	top: 4em;
+	left: 5%;
+	z-index: 5;
+	background-color: transparent;
+	padding: 5px;
+	border: 1px solid #999;
+	text-align: center;
+	font-family: 'Roboto','sans-serif';
+	line-height: 30px;
+	padding-left: 10px;
+	height: none;
+	border: none;
 }
