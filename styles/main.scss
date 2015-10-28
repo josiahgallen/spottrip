@@ -22,9 +22,13 @@ html, body {
  }
  .panel-body {
  	height: 30em;
+ 	padding: 0;
  	>div:nth-child(2) {
  		height: 100%
  	}
+ }
+ .col-sm-6 {
+ 	padding: 0;
  }
 
  #tripListWell {
@@ -33,8 +37,8 @@ html, body {
  }
 .floating-panel {
 	position: absolute;
-	top: 4em;
-	left: 5%;
+	top: 2.4em;
+	left: .1em;
 	z-index: 5;
 	background-color: transparent;
 	padding: 5px;

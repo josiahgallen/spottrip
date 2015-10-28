@@ -19,8 +19,7 @@ module.exports = React.createClass({
 	},
 	addLocation: function(e) {
 		e.preventDefault();
-		console.log('add location clicked');
-		console.log(this.refs.startDate.value);
+		this.props.infoWindow.close();
 		this.props.onLocationAdded(this.props.address,this.refs.tripTitle.value,this.refs.startDate.value,this.refs.endDate.value);
 	}
 });

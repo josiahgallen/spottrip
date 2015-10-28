@@ -9,18 +9,31 @@ var TripModel = require('../models/TripModel');
 module.exports = React.createClass({
 	getInitialState: function() {
 		return{
-			markers: []
+			trips: [],
+			map: [],
+			newestTrip: null
 		}
 	},
 	componentWillMount: function() {
 		var query = new Parse.Query(TripModel);
 		query.equalTo('userId', new Parse.User({objectId: Parse.User.current().id})).find().then(
-			(markers) => {
-				markers.forEach(function(marker){
-					console.log(marker.get('marker').latitude);
-					console.log(marker.get('marker').longitude);
+			(trips) => {
+				trips.forEach((marker) => {
+					var myLatLng = {lat: marker.get('marker').latitude, lng: marker.get('marker').longitude};
+					var tripName = '<h4>'+marker.get('tripName')+'</h4><p>'+marker.get('address')+'<br>'+marker.get('tripStart')+' thru '+marker.get('tripEnd')+'</p><a href=#trip/'+marker.id+'>Edit Trip</a>';
+					var marker = new google.maps.Marker({
+    					position: myLatLng,
+    					map: this.state.map,
+    					title: marker.get('tripName')
+  					});
+  					var infowindow = new google.maps.InfoWindow({
+    					content: tripName
+  					});
+  					marker.addListener('click', () => {
+    					infowindow.open(this.state.map, marker);
+  					});
 				})
-				this.setState({markers: markers})
+				this.setState({trips: trips})
 			},
 			(err) => {
 				console.log(err);
@@ -38,13 +51,14 @@ module.exports = React.createClass({
 			disableDefaultUI: true,
 			zoomControl: true
 		});
+		this.setState({map: this.map})
 		document.getElementById('tripSearchButton').addEventListener('click', () => {
 			geocodeAddress(geocoder, this.map);
 			console.log('btn clicked');
 		});
-
 		function geocodeAddress(geocoder, resultsMap) {
 			var address = document.getElementById('tripInput').value;
+			document.getElementById('tripInput').value = '';
 			geocoder.geocode({'address': address}, function(results, status) {
 				if (status === google.maps.GeocoderStatus.OK) {
 					resultsMap.setCenter(results[0].geometry.location);
@@ -52,15 +66,12 @@ module.exports = React.createClass({
 						map: resultsMap,
 						position: results[0].geometry.location
 					});
+
 					//important
 					var infoWindowContainer = document.createElement('div');
-					ReactDOM.render(<InfoWindowComponent address={results[0]} onLocationAdded={self.addNewLocation} />, infoWindowContainer);
+					ReactDOM.render(<InfoWindowComponent address={results[0]} infoWindow={infoWindow} onLocationAdded={self.addNewLocation} />, infoWindowContainer);
 					infoWindow.setContent(infoWindowContainer);
 					//*********
-					console.log(results[0].geometry.location.toUrlValue());
-					console.log(infoWindow.getContent());
-					console.log(results[0].formatted_address);
-					console.log(results[0].geometry.location.lat(),results[0].geometry.location.lng());
 				} else {
 					alert('Geocode was not successful for the following reason: ' + status);
 				}
@@ -78,24 +89,44 @@ module.exports = React.createClass({
 			address: address.formatted_address,
 			marker: new Parse.GeoPoint(address.geometry.location.lat(),address.geometry.location.lng())
 		})
-		newTrip.save();
+		newTrip.save().then(
+			(trip) => {
+				var myLatLng = {lat: trip.get('marker').latitude, lng: trip.get('marker').longitude};
+					var tripName = '<h4>'+trip.get('tripName')+'</h4><p>'+trip.get('address')+'<br>'+trip.get('tripStart')+' thru '+trip.get('tripEnd')+'</p><a href=#trip/'+trip.id+'>Edit Trip</a>';
+					var marker = new google.maps.Marker({
+    					position: myLatLng,
+    					map: this.state.map,
+    					title: trip.get('tripName')
+  					});
+  					var infowindow = new google.maps.InfoWindow({
+    					content: tripName
+  					});
+  					marker.addListener('click', () => {
+    					infowindow.open(this.state.map, marker);
+  					});
+  					console.log('newestTrip',trip);
+  					this.setState({newTrip: trip});
+
+			},
+			(err) => {
+				console.log(err);
+			}
+		);
 	},
 	render: function() {
 		var currentUser = Parse.User.current();
-		var myMarkers = [];
 		var myList = [];
-		myMarkers = this.state.markers.map(function(marker){
+		var newTrip = [];
+		
+		myList = this.state.trips.map(function(listItem) {
 			return(
-				marker.get('marker')
+				<a key={listItem.id} href={'#trip/'+listItem.id} className="list-group-item"><strong>{listItem.get('tripName')}</strong><div>{listItem.get('tripStart')} thru {listItem.get('tripEnd')}</div></a>
 			)
 		})
-		myList = this.state.markers.map(function(listItem) {
-			return(
-				<a key={listItem.id} href={'#trip/'+listItem.id} className="list-group-item">{listItem.get('tripName')}</a>
-			)
-		})
-		console.log(this.state.markers[0])
-		console.log(myMarkers[0]);
+		console.log(this.state.newTrip);
+		if(this.state.newTrip) {
+			newTrip = (<a key={this.state.newTrip.id} href={'#trip/'+this.state.newTrip.id} className="list-group-item"><strong>{this.state.newTrip.get('tripName')}</strong><div>{this.state.newTrip.get('tripStart')} thru {this.state.newTrip.get('tripEnd')}</div></a>)
+		}
 		return(
 			<div>
 				<h1>Welcome Back {currentUser.get('firstName')}!</h1>
@@ -136,14 +167,10 @@ module.exports = React.createClass({
 					<h2>Trip List</h2>
 					<div className="list-group">
 						{myList}
+						{newTrip}
 					</div>
 				</div>
 			</div>
 		)
-	},
-	newTrip: function(e) {
-		e.prevenDefault();
-		console.log('newTrip!');
 	}
 });
-//[trips,spots,blogs,pictures]

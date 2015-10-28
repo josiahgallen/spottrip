@@ -34118,8 +34118,7 @@ module.exports = React.createClass({
 	},
 	addLocation: function addLocation(e) {
 		e.preventDefault();
-		console.log('add location clicked');
-		console.log(this.refs.startDate.value);
+		this.props.infoWindow.close();
 		this.props.onLocationAdded(this.props.address, this.refs.tripTitle.value, this.refs.startDate.value, this.refs.endDate.value);
 	}
 });
@@ -34477,19 +34476,32 @@ module.exports = React.createClass({
 
 	getInitialState: function getInitialState() {
 		return {
-			markers: []
+			trips: [],
+			map: [],
+			newestTrip: null
 		};
 	},
 	componentWillMount: function componentWillMount() {
 		var _this = this;
 
 		var query = new Parse.Query(TripModel);
-		query.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (markers) {
-			markers.forEach(function (marker) {
-				console.log(marker.get('marker').latitude);
-				console.log(marker.get('marker').longitude);
+		query.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (trips) {
+			trips.forEach(function (marker) {
+				var myLatLng = { lat: marker.get('marker').latitude, lng: marker.get('marker').longitude };
+				var tripName = '<h4>' + marker.get('tripName') + '</h4><p>' + marker.get('address') + '<br>' + marker.get('tripStart') + ' thru ' + marker.get('tripEnd') + '</p><a href=#trip/' + marker.id + '>Edit Trip</a>';
+				var marker = new google.maps.Marker({
+					position: myLatLng,
+					map: _this.state.map,
+					title: marker.get('tripName')
+				});
+				var infowindow = new google.maps.InfoWindow({
+					content: tripName
+				});
+				marker.addListener('click', function () {
+					infowindow.open(_this.state.map, marker);
+				});
 			});
-			_this.setState({ markers: markers });
+			_this.setState({ trips: trips });
 		}, function (err) {
 			console.log(err);
 		});
@@ -34507,13 +34519,14 @@ module.exports = React.createClass({
 			disableDefaultUI: true,
 			zoomControl: true
 		});
+		this.setState({ map: this.map });
 		document.getElementById('tripSearchButton').addEventListener('click', function () {
 			geocodeAddress(geocoder, _this2.map);
 			console.log('btn clicked');
 		});
-
 		function geocodeAddress(geocoder, resultsMap) {
 			var address = document.getElementById('tripInput').value;
+			document.getElementById('tripInput').value = '';
 			geocoder.geocode({ 'address': address }, function (results, status) {
 				if (status === google.maps.GeocoderStatus.OK) {
 					resultsMap.setCenter(results[0].geometry.location);
@@ -34521,22 +34534,21 @@ module.exports = React.createClass({
 						map: resultsMap,
 						position: results[0].geometry.location
 					});
+
 					//important
 					var infoWindowContainer = document.createElement('div');
-					ReactDOM.render(React.createElement(InfoWindowComponent, { address: results[0], onLocationAdded: self.addNewLocation }), infoWindowContainer);
+					ReactDOM.render(React.createElement(InfoWindowComponent, { address: results[0], infoWindow: infoWindow, onLocationAdded: self.addNewLocation }), infoWindowContainer);
 					infoWindow.setContent(infoWindowContainer);
 					//*********
-					console.log(results[0].geometry.location.toUrlValue());
-					console.log(infoWindow.getContent());
-					console.log(results[0].formatted_address);
-					console.log(results[0].geometry.location.lat(), results[0].geometry.location.lng());
 				} else {
-					alert('Geocode was not successful for the following reason: ' + status);
-				}
+						alert('Geocode was not successful for the following reason: ' + status);
+					}
 			});
 		}
 	},
 	addNewLocation: function addNewLocation(address, tripTitle, startDate, endDate) {
+		var _this3 = this;
+
 		console.log('add new location callback');
 		console.log(tripTitle, startDate, endDate, address.formatted_address);
 		var newTrip = new TripModel({
@@ -34547,24 +34559,68 @@ module.exports = React.createClass({
 			address: address.formatted_address,
 			marker: new Parse.GeoPoint(address.geometry.location.lat(), address.geometry.location.lng())
 		});
-		newTrip.save();
+		newTrip.save().then(function (trip) {
+			var myLatLng = { lat: trip.get('marker').latitude, lng: trip.get('marker').longitude };
+			var tripName = '<h4>' + trip.get('tripName') + '</h4><p>' + trip.get('address') + '<br>' + trip.get('tripStart') + ' thru ' + trip.get('tripEnd') + '</p><a href=#trip/' + trip.id + '>Edit Trip</a>';
+			var marker = new google.maps.Marker({
+				position: myLatLng,
+				map: _this3.state.map,
+				title: trip.get('tripName')
+			});
+			var infowindow = new google.maps.InfoWindow({
+				content: tripName
+			});
+			marker.addListener('click', function () {
+				infowindow.open(_this3.state.map, marker);
+			});
+			console.log('newestTrip', trip);
+			_this3.setState({ newTrip: trip });
+		}, function (err) {
+			console.log(err);
+		});
 	},
 	render: function render() {
 		var currentUser = Parse.User.current();
-		var myMarkers = [];
 		var myList = [];
-		myMarkers = this.state.markers.map(function (marker) {
-			return marker.get('marker');
-		});
-		myList = this.state.markers.map(function (listItem) {
+		var newTrip = [];
+
+		myList = this.state.trips.map(function (listItem) {
 			return React.createElement(
 				'a',
 				{ key: listItem.id, href: '#trip/' + listItem.id, className: 'list-group-item' },
-				listItem.get('tripName')
+				React.createElement(
+					'strong',
+					null,
+					listItem.get('tripName')
+				),
+				React.createElement(
+					'div',
+					null,
+					listItem.get('tripStart'),
+					' thru ',
+					listItem.get('tripEnd')
+				)
 			);
 		});
-		console.log(this.state.markers[0]);
-		console.log(myMarkers[0]);
+		console.log(this.state.newTrip);
+		if (this.state.newTrip) {
+			newTrip = React.createElement(
+				'a',
+				{ key: this.state.newTrip.id, href: '#trip/' + this.state.newTrip.id, className: 'list-group-item' },
+				React.createElement(
+					'strong',
+					null,
+					this.state.newTrip.get('tripName')
+				),
+				React.createElement(
+					'div',
+					null,
+					this.state.newTrip.get('tripStart'),
+					' thru ',
+					this.state.newTrip.get('tripEnd')
+				)
+			);
+		}
 		return React.createElement(
 			'div',
 			null,
@@ -34663,17 +34719,13 @@ module.exports = React.createClass({
 				React.createElement(
 					'div',
 					{ className: 'list-group' },
-					myList
+					myList,
+					newTrip
 				)
 			)
 		);
-	},
-	newTrip: function newTrip(e) {
-		e.prevenDefault();
-		console.log('newTrip!');
 	}
 });
-//[trips,spots,blogs,pictures]
 
 },{"../models/TripModel":179,"./InfoWindowComponent":174,"backbone":1,"bootstrap":3,"react":173,"react-dom":18}],178:[function(require,module,exports){
 'use strict';
