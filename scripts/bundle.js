@@ -34076,6 +34076,104 @@ module.exports = require('./lib/React');
 },{"./lib/React":42}],174:[function(require,module,exports){
 'use strict';
 var React = require('react');
+var PictureModel = require('../models/PictureModel');
+var JournalEntryModel = require('../models/JournalEntryModel');
+var SpotModel = require('../models/SpotModel');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	getInitialState: function getInitialState() {
+		return {
+			pictures: [],
+			journalEntries: [],
+			newPic: []
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var _this = this;
+
+		var picQuery = new Parse.Query(PictureModel);
+		picQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (pictures) {
+			_this.setState({ pictures: pictures });
+		}, function (err) {
+			console.log(err);
+		});
+		var journalQuery = new Parse.Query(JournalEntryModel);
+		journalQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (entries) {
+			_this.setState({ journalEntries: entries });
+		}, function (err) {
+			console.log(err);
+		});
+	},
+	render: function render() {
+		var pictures = [];
+		var entries = [];
+		var newPic = this.state.newPic;
+		if (this.props.newPic) {
+			this.setState({ newPic: this.props.newPic });
+		}
+		entries = this.state.journalEntries.map(function (entry) {
+			return React.createElement(
+				'div',
+				{ key: entry.id },
+				React.createElement(
+					'p',
+					{ className: 'lead' },
+					entry.get('title')
+				),
+				React.createElement(
+					'p',
+					null,
+					entry.get('entry')
+				)
+			);
+		});
+		pictures = this.state.pictures.map(function (picture) {
+			return React.createElement(
+				'div',
+				{ className: 'row', key: picture.id },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-6 col-md-3' },
+					React.createElement(
+						'a',
+						{ href: '#', className: 'thumbnail' },
+						React.createElement('img', { src: picture.get('picture').url(), alt: '../images/defaultPic.png' })
+					)
+				)
+			);
+		});
+		return React.createElement(
+			'div',
+			null,
+			pictures,
+			newPic,
+			entries,
+			React.createElement(
+				'button',
+				{ onClick: this.addBlog, type: 'button', className: 'btn btn-primary', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+				React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
+			),
+			React.createElement(
+				'button',
+				{ onClick: this.addPic, type: 'button', className: 'btn btn-primary', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+				React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
+			)
+		);
+	},
+	addPic: function addPic() {
+		this.props.onPicModalShow();
+	},
+	addBlog: function addBlog() {
+		console.log('clicked');
+		this.props.onModalShow();
+	}
+});
+
+},{"../models/JournalEntryModel":183,"../models/PictureModel":184,"../models/SpotModel":185,"react":173}],175:[function(require,module,exports){
+'use strict';
+var React = require('react');
 
 module.exports = React.createClass({
 	displayName: 'exports',
@@ -34123,7 +34221,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":173}],175:[function(require,module,exports){
+},{"react":173}],176:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -34319,7 +34417,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"react":173}],176:[function(require,module,exports){
+},{"backbone":1,"react":173}],177:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var Backbone = require('backbone');
@@ -34344,6 +34442,7 @@ module.exports = React.createClass({
 		var currentUser = Parse.User.current();
 		var dropDownLinks = [];
 		var links = [];
+		var currentURL = Backbone.history.getFragment();
 
 		if (Parse.User.current()) {
 			dropDownLinks.push(React.createElement(
@@ -34394,7 +34493,10 @@ module.exports = React.createClass({
 				)
 			));
 		}
-
+		// if (currentURL.indexOf('spot') > -1) {
+		// 	//need to figure out how to grab ahold of trip id for URL
+		// 	links.push(<li key="backToTrip"><a href={tripId} onClick={this.backToTrip}>Back To Trip</a></li>)
+		// }
 		return React.createElement(
 			'nav',
 			{ className: 'navbar navbar-default' },
@@ -34461,15 +34563,18 @@ module.exports = React.createClass({
 		console.log('logout');
 	}
 });
+// backToTrip: function(id) {
+// 	this.props.router.navigate('trip/'+id, {trigger: true})
+// }
 
-},{"backbone":1,"bootstrap":3,"react":173}],177:[function(require,module,exports){
+},{"backbone":1,"bootstrap":3,"react":173}],178:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
-require('bootstrap');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var TripModel = require('../models/TripModel');
+var TripsPortalComponent = require('./TripsNSpotsPortalComponent');
 
 module.exports = React.createClass({
 	displayName: 'exports',
@@ -34488,7 +34593,7 @@ module.exports = React.createClass({
 		query.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (trips) {
 			trips.forEach(function (marker) {
 				var myLatLng = { lat: marker.get('marker').latitude, lng: marker.get('marker').longitude };
-				var tripName = '<h4>' + marker.get('tripName') + '</h4><p>' + marker.get('address') + '<br>' + marker.get('tripStart') + ' thru ' + marker.get('tripEnd') + '</p><a href=#trip/' + marker.id + '>Edit Trip</a>';
+				var tripName = '<h4>' + marker.get('tripName') + '</h4><p>' + marker.get('address') + '<br>' + marker.get('tripStart').toDateString() + ' - ' + marker.get('tripEnd').toDateString() + '</p><a href=#trip/' + marker.id + '>Edit Trip</a>';
 				var marker = new google.maps.Marker({
 					position: myLatLng,
 					map: _this.state.map,
@@ -34510,19 +34615,18 @@ module.exports = React.createClass({
 		var _this2 = this;
 
 		var self = this;
-		var austinTX = { lat: 30.2500, lng: -97.7500 };
+		var mapCenter = { lat: 25, lng: -30 };
 
 		var geocoder = new google.maps.Geocoder();
 		this.map = new google.maps.Map(this.refs.map, {
-			center: austinTX,
-			zoom: 3,
+			center: mapCenter,
+			zoom: 2,
 			disableDefaultUI: true,
 			zoomControl: true
 		});
 		this.setState({ map: this.map });
 		document.getElementById('tripSearchButton').addEventListener('click', function () {
 			geocodeAddress(geocoder, _this2.map);
-			console.log('btn clicked');
 		});
 		function geocodeAddress(geocoder, resultsMap) {
 			var address = document.getElementById('tripInput').value;
@@ -34546,39 +34650,6 @@ module.exports = React.createClass({
 			});
 		}
 	},
-	addNewLocation: function addNewLocation(address, tripTitle, startDate, endDate) {
-		var _this3 = this;
-
-		console.log('add new location callback');
-		console.log(tripTitle, startDate, endDate, address.formatted_address);
-		var newTrip = new TripModel({
-			userId: Parse.User.current(),
-			tripName: tripTitle,
-			tripStart: startDate,
-			tripEnd: endDate,
-			address: address.formatted_address,
-			marker: new Parse.GeoPoint(address.geometry.location.lat(), address.geometry.location.lng())
-		});
-		newTrip.save().then(function (trip) {
-			var myLatLng = { lat: trip.get('marker').latitude, lng: trip.get('marker').longitude };
-			var tripName = '<h4>' + trip.get('tripName') + '</h4><p>' + trip.get('address') + '<br>' + trip.get('tripStart') + ' thru ' + trip.get('tripEnd') + '</p><a href=#trip/' + trip.id + '>Edit Trip</a>';
-			var marker = new google.maps.Marker({
-				position: myLatLng,
-				map: _this3.state.map,
-				title: trip.get('tripName')
-			});
-			var infowindow = new google.maps.InfoWindow({
-				content: tripName
-			});
-			marker.addListener('click', function () {
-				infowindow.open(_this3.state.map, marker);
-			});
-			console.log('newestTrip', trip);
-			_this3.setState({ newTrip: trip });
-		}, function (err) {
-			console.log(err);
-		});
-	},
 	render: function render() {
 		var currentUser = Parse.User.current();
 		var myList = [];
@@ -34596,13 +34667,12 @@ module.exports = React.createClass({
 				React.createElement(
 					'div',
 					null,
-					listItem.get('tripStart'),
+					listItem.get('tripStart').toDateString(),
 					' thru ',
-					listItem.get('tripEnd')
+					listItem.get('tripEnd').toDateString()
 				)
 			);
 		});
-		console.log(this.state.newTrip);
 		if (this.state.newTrip) {
 			newTrip = React.createElement(
 				'a',
@@ -34615,9 +34685,9 @@ module.exports = React.createClass({
 				React.createElement(
 					'div',
 					null,
-					this.state.newTrip.get('tripStart'),
-					' thru ',
-					this.state.newTrip.get('tripEnd')
+					this.state.newTrip.get('tripStart').toDateString(),
+					' - ',
+					this.state.newTrip.get('tripEnd').toDateString()
 				)
 			);
 		}
@@ -34631,6 +34701,454 @@ module.exports = React.createClass({
 				currentUser.get('firstName'),
 				'!'
 			),
+			React.createElement(
+				TripsPortalComponent,
+				{ myList: myList, newestListItem: newTrip, listTitle: 'Trip List' },
+				React.createElement('div', { ref: 'map' })
+			)
+		);
+	},
+	addNewLocation: function addNewLocation(address, tripTitle, startDate, endDate) {
+		var _this3 = this;
+
+		var newTrip = new TripModel({
+			userId: Parse.User.current(),
+			tripName: tripTitle,
+			tripStart: new Date(startDate),
+			tripEnd: new Date(endDate),
+			address: address.formatted_address,
+			marker: new Parse.GeoPoint(address.geometry.location.lat(), address.geometry.location.lng())
+		});
+		newTrip.save().then(function (trip) {
+			var myLatLng = { lat: trip.get('marker').latitude, lng: trip.get('marker').longitude };
+			var tripName = '<h4>' + trip.get('tripName') + '</h4><p>' + trip.get('address') + '<br>' + trip.get('tripStart').toDateString() + ' thru ' + trip.get('tripEnd').toDateString() + '</p><a href=#trip/' + trip.id + '>Edit Trip</a>';
+			var marker = new google.maps.Marker({
+				position: myLatLng,
+				map: _this3.state.map,
+				title: trip.get('tripName')
+			});
+			var infowindow = new google.maps.InfoWindow({
+				content: tripName
+			});
+			marker.addListener('click', function () {
+				infowindow.open(_this3.state.map, marker);
+			});
+			_this3.setState({ newTrip: trip });
+		}, function (err) {
+			console.log(err);
+		});
+	}
+});
+
+},{"../models/TripModel":186,"./InfoWindowComponent":175,"./TripsNSpotsPortalComponent":181,"backbone":1,"react":173,"react-dom":18}],179:[function(require,module,exports){
+'use strict';
+var React = require('react');
+var ReactDOM = require('react-dom');
+var SpotModel = require('../models/SpotModel');
+var AddMediaComponent = require('./AddMediaComponent');
+var PictureModel = require('../models/PictureModel');
+var JournalEntryModel = require('../models/JournalEntryModel');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	getInitialState: function getInitialState() {
+		return {
+			spot: null,
+			newPic: null
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var _this = this;
+
+		$('#myModal').on('shown.bs.modal', function () {
+			$('#myInput').show();
+		});
+		var self = this;
+		var query = new Parse.Query(SpotModel);
+		query.get(this.props.spot).then(function (spot) {
+			var popUp = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
+			var mapCenter = { lat: spot.get('spotMarker').latitude + 4, lng: spot.get('spotMarker').longitude };
+
+			_this.map = new google.maps.Map(_this.refs.map, {
+				center: mapCenter,
+				zoom: 6,
+				disableDefaultUI: true,
+				zoomControl: true
+			});
+			var infoWindow = new google.maps.InfoWindow({
+				map: _this.map,
+				position: popUp
+			});
+			var infoWindowContainer = document.createElement('div');
+			ReactDOM.render(React.createElement(AddMediaComponent, { newPic: _this.state.newPic, onPicModalShow: _this.onPicModalShow, onModalShow: _this.onModalShow, spot: _this.props.spot }), infoWindowContainer);
+			infoWindow.setContent(infoWindowContainer);
+			_this.setState({ map: _this.map, spot: spot });
+		}, function (err) {
+			console.log(err);
+		});
+	},
+	render: function render() {
+		var newPic = this.state.newPic;
+		console.log(newPic);
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'h1',
+				null,
+				this.state.spot ? this.state.spot.get('spotName') : ''
+			),
+			React.createElement('div', { id: 'spotMap', ref: 'map' }),
+			React.createElement(
+				'div',
+				{ ref: 'myModal', id: 'myModal', className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content' },
+						React.createElement(
+							'h1',
+							null,
+							'Journal Entry'
+						),
+						React.createElement('hr', null),
+						React.createElement(
+							'form',
+							null,
+							React.createElement(
+								'div',
+								{ className: 'form-group xs-col-6' },
+								React.createElement('input', { type: 'text', ref: 'journalTitle', className: 'form-control', id: 'blogTitle', placeholder: 'Title' })
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement('textarea', { ref: 'entry', className: 'form-control', rows: '6', placeholder: 'Trip Memories Go Here!' })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'modal-footer' },
+							React.createElement(
+								'button',
+								{ type: 'button', className: 'btn btn-default', 'data-dismiss': 'modal' },
+								'Cancel'
+							),
+							React.createElement(
+								'button',
+								{ onClick: this.addJournalEntry, type: 'button', className: 'btn btn-primary' },
+								'Add Entry'
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ ref: 'picModal', id: 'myModal', className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content' },
+						React.createElement(
+							'h1',
+							null,
+							'Upload Photos'
+						),
+						React.createElement('hr', null),
+						React.createElement(
+							'form',
+							null,
+							React.createElement('input', { type: 'file', className: 'fileUpload', ref: 'addPicture' }),
+							React.createElement('input', { type: 'text', ref: 'title', placeholder: 'title' }),
+							React.createElement('input', { type: 'text', ref: 'caption', placeholder: 'caption' })
+						),
+						React.createElement(
+							'button',
+							{ onClick: this.addPicture },
+							'UploadPicture'
+						)
+					)
+				)
+			)
+		);
+	},
+	onModalShow: function onModalShow() {
+		console.log('modal made it');
+		$(this.refs.myModal).modal('show');
+	},
+	onPicModalShow: function onPicModalShow(e) {
+		$(this.refs.picModal).modal('show');
+	},
+	addJournalEntry: function addJournalEntry() {
+		var newEntry = new JournalEntryModel({
+			title: this.refs.journalTitle.value,
+			entry: this.refs.entry.value,
+			spotId: new SpotModel({ objectId: this.props.spot })
+		});
+		newEntry.save();
+		$(this.refs.myModal).modal('hide');
+		this.refs.journalTitle.value = '';
+		this.refs.entry.value = '';
+	},
+	addPicture: function addPicture() {
+		var _this2 = this;
+
+		var file = this.refs.addPicture.files[0];
+		var picLabel;
+		var formatTitle = this.refs.title.value.split(' ').join('');
+		console.log(formatTitle);
+		formatTitle.length > 0 ? picLabel = formatTitle : picLabel = 'picture';
+		var parseFile = new Parse.File(picLabel + '.png', file);
+		var pic = new PictureModel({
+			spotId: new SpotModel({ objectId: this.props.spot }),
+			caption: this.refs.title.value,
+			title: this.refs.caption.value
+		});
+		pic.set('picture', parseFile);
+		parseFile.save().then(function () {
+			pic.save().then(function (pic) {
+				console.log(pic);
+				_this2.setState({ newPic: pic });
+			});
+		});
+		$(this.refs.picModal).modal('hide');
+		this.refs.addPicture.value = '';
+		this.refs.caption.value = '';
+		this.refs.title.value = '';
+		// var newTrip = new TripModel({
+		// 	userId: Parse.User.current(),
+		// 	tripName: tripTitle,
+		// 	tripStart: new Date (startDate),
+		// 	tripEnd: new Date (endDate),
+		// 	address: address.formatted_address,
+		// 	marker: new Parse.GeoPoint(address.geometry.location.lat(),address.geometry.location.lng())
+		// })
+		// newTrip.save().then(
+		// 	(trip) => {
+		// 		var myLatLng = {lat: trip.get('marker').latitude, lng: trip.get('marker').longitude};
+		// 			var tripName = '<h4>'+trip.get('tripName')+'</h4><p>'+trip.get('address')+'<br>'+trip.get('tripStart').toDateString()+' thru '+trip.get('tripEnd').toDateString()+'</p><a href=#trip/'+trip.id+'>Edit Trip</a>';
+		// 			var marker = new google.maps.Marker({
+		// 				position: myLatLng,
+		// 				map: this.state.map,
+		// 				title: trip.get('tripName')
+		// 			});
+		// 			var infowindow = new google.maps.InfoWindow({
+		// 				content: tripName
+		// 			});
+		// 			marker.addListener('click', () => {
+		// 				infowindow.open(this.state.map, marker);
+		// 			});
+		// 			this.setState({newTrip: trip});
+
+		// 	},
+		// 	(err) => {
+		// 		console.log(err);
+		// 	}
+		// );
+	}
+});
+
+},{"../models/JournalEntryModel":183,"../models/PictureModel":184,"../models/SpotModel":185,"./AddMediaComponent":174,"react":173,"react-dom":18}],180:[function(require,module,exports){
+'use strict';
+var React = require('react');
+var ReactDOM = require('react-dom');
+var TripModel = require('../models/TripModel');
+var SpotModel = require('../models/SpotModel');
+var InfoWindowComponent = require('./InfoWindowComponent');
+var SpotsPortalComponent = require('./TripsNSpotsPortalComponent');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	getInitialState: function getInitialState() {
+		return {
+			trip: null,
+			spots: [],
+			newSpot: null
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var _this = this;
+
+		var query = new Parse.Query(TripModel);
+		query.get(this.props.trip).then(function (trip) {
+			_this.setState({ trip: trip });
+		}, function (err) {
+			console.log(err);
+		});
+		var spotQuery = new Parse.Query(SpotModel);
+		spotQuery.equalTo('tripId', new TripModel({ objectId: this.props.trip })).find().then(function (spots) {
+			spots.forEach(function (spot) {
+				var myLatLng = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
+				var infoContent = '<h4>' + spot.get('spotName') + '</h4><p>' + spot.get('address') + '<br>' + spot.get('spotDateStart').toDateString() + ' - ' + spot.get('spotDateEnd').toDateString() + '</p><a href=#spot/' + spot.id + '>Post to my Spot</a>';
+				var marker = new google.maps.Marker({
+					position: myLatLng,
+					map: _this.state.map,
+					title: spot.get('spotName')
+				});
+				var infowindow = new google.maps.InfoWindow({
+					content: infoContent
+				});
+				marker.addListener('click', function () {
+					infowindow.open(_this.state.map, marker);
+				});
+			});
+			_this.setState({ spots: spots });
+		}, function (err) {
+			console.log(err);
+		});
+	},
+	componentDidMount: function componentDidMount() {
+		var _this2 = this;
+
+		var self = this;
+		var mapCenter = { lat: 25, lng: -30 };
+
+		var geocoder = new google.maps.Geocoder();
+		this.map = new google.maps.Map(this.refs.map, {
+			center: mapCenter,
+			zoom: 2,
+			disableDefaultUI: true,
+			zoomControl: true
+		});
+		this.setState({ map: this.map });
+		document.getElementById('tripSearchButton').addEventListener('click', function () {
+			geocodeAddress(geocoder, _this2.map);
+		});
+		function geocodeAddress(geocoder, resultsMap) {
+			var address = document.getElementById('tripInput').value;
+			document.getElementById('tripInput').value = '';
+			geocoder.geocode({ 'address': address }, function (results, status) {
+				if (status === google.maps.GeocoderStatus.OK) {
+					resultsMap.setCenter(results[0].geometry.location);
+					var infoWindow = new google.maps.InfoWindow({
+						map: resultsMap,
+						position: results[0].geometry.location
+					});
+
+					//important
+					var infoWindowContainer = document.createElement('div');
+					ReactDOM.render(React.createElement(InfoWindowComponent, { address: results[0], infoWindow: infoWindow, onLocationAdded: self.addNewLocation }), infoWindowContainer);
+					infoWindow.setContent(infoWindowContainer);
+					//*********
+				} else {
+						alert('Geocode was not successful for the following reason: ' + status);
+					}
+			});
+		}
+	},
+	render: function render() {
+		var myList = [];
+		var newSpot = [];
+		myList = this.state.spots.map(function (spot) {
+			return React.createElement(
+				'a',
+				{ key: spot.id, href: '#spot/' + spot.id, className: 'list-group-item' },
+				React.createElement(
+					'strong',
+					null,
+					spot.get('spotName')
+				),
+				React.createElement(
+					'div',
+					null,
+					spot.get('spotDateStart').toDateString(),
+					' thru ',
+					spot.get('spotDateEnd').toDateString()
+				)
+			);
+		});
+		this.state.newSpot ? newSpot = React.createElement(
+			'a',
+			{ key: this.state.newSpot.id, href: '#spot/' + this.state.newSpot.id, className: 'list-group-item' },
+			React.createElement(
+				'strong',
+				null,
+				this.state.newSpot.get('spotName')
+			),
+			React.createElement(
+				'div',
+				null,
+				this.state.newSpot.get('spotDateStart').toDateString(),
+				' thru ',
+				this.state.newSpot.get('spotDateEnd').toDateString()
+			)
+		) : newSpot = [];
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'h1',
+				null,
+				this.state.trip ? this.state.trip.get('tripName') : ''
+			),
+			React.createElement(
+				'h4',
+				{ className: 'dateHeading' },
+				this.state.trip ? this.state.trip.get('tripStart').toDateString() + ' - ' + this.state.trip.get('tripEnd').toDateString() : ''
+			),
+			React.createElement(
+				SpotsPortalComponent,
+				{ myList: myList, newestListItem: newSpot, listTitle: 'Trip Spots' },
+				React.createElement('div', { ref: 'map' })
+			)
+		);
+	},
+	addNewLocation: function addNewLocation(address, tripTitle, startDate, endDate) {
+		var _this3 = this;
+
+		var newSpot = new SpotModel({
+			tripId: new TripModel({ objectId: this.state.trip.id }),
+			spotName: tripTitle,
+			spotDateStart: new Date(startDate),
+			spotDateEnd: new Date(endDate),
+			address: address.formatted_address,
+			spotMarker: new Parse.GeoPoint(address.geometry.location.lat(), address.geometry.location.lng())
+		});
+		newSpot.save().then(function (spot) {
+			var myLatLng = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
+			var spotName = '<h4>' + spot.get('spotName') + '</h4><p>' + spot.get('address') + '<br>' + spot.get('spotDateStart').toDateString() + ' thru ' + spot.get('spotDateEnd').toDateString() + '</p><a href=#spot/' + spot.id + '>Add to Spot</a>';
+			var marker = new google.maps.Marker({
+				position: myLatLng,
+				map: _this3.state.map,
+				title: spot.get('spotName')
+			});
+			var infowindow = new google.maps.InfoWindow({
+				content: spotName
+			});
+			marker.addListener('click', function () {
+				infowindow.open(_this3.state.map, marker);
+			});
+			_this3.setState({ newSpot: spot });
+		}, function (err) {
+			console.log(err);
+		});
+	}
+
+});
+
+},{"../models/SpotModel":185,"../models/TripModel":186,"./InfoWindowComponent":175,"./TripsNSpotsPortalComponent":181,"react":173,"react-dom":18}],181:[function(require,module,exports){
+'use strict';
+
+'usestrict';
+var React = require('react');
+var ReactDOM = require('react-dom');
+var Backbone = require('backbone');
+require('bootstrap');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
 			React.createElement(
 				'div',
 				{ className: 'panel panel-default col-sm-offset-1 col-sm-6' },
@@ -34652,7 +35170,7 @@ module.exports = React.createClass({
 						React.createElement('input', { className: 'address', id: 'tripInput', type: 'textbox', defaultValue: 'Austin, TX' }),
 						React.createElement('input', { className: 'submit', id: 'tripSearchButton', type: 'button', value: 'Find Location' })
 					),
-					React.createElement('div', { ref: 'map' })
+					this.props.children
 				),
 				React.createElement(
 					'div',
@@ -34714,20 +35232,20 @@ module.exports = React.createClass({
 				React.createElement(
 					'h2',
 					null,
-					'Trip List'
+					this.props.listTitle
 				),
 				React.createElement(
 					'div',
 					{ className: 'list-group' },
-					myList,
-					newTrip
+					this.props.myList,
+					this.props.newestListItem
 				)
 			)
 		);
 	}
 });
 
-},{"../models/TripModel":179,"./InfoWindowComponent":174,"backbone":1,"bootstrap":3,"react":173,"react-dom":18}],178:[function(require,module,exports){
+},{"backbone":1,"bootstrap":3,"react":173,"react-dom":18}],182:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -34739,6 +35257,8 @@ require('bootstrap');
 var NavComponent = require('./components/NavComponent');
 var LoginRegisterComponent = require('./components/LoginRegisterComponent');
 var ProfileComponent = require('./components/ProfileComponent');
+var TripsComponent = require('./components/TripComponent');
+var SpotComponent = require('./components/SpotComponent');
 
 Parse.initialize('SReTPFlNUeFnSqrBx33yNVHKDqR0jrY6BB2l6E47', 'XGMgOrJcA5H1O3jc7OwPVyt0n9oo6BXiJsD7Gptm');
 
@@ -34747,8 +35267,9 @@ var Router = Backbone.Router.extend({
 		'': 'home',
 		'login': 'login',
 		'register': 'register',
-		'profile(/:id)': 'profile',
-		'trip/:id': 'trip'
+		'profile': 'profile',
+		'trip/:id': 'trip',
+		'spot/:id': 'spot'
 	},
 	home: function home() {
 		ReactDOM.render(React.createElement(
@@ -34766,12 +35287,11 @@ var Router = Backbone.Router.extend({
 	profile: function profile() {
 		ReactDOM.render(React.createElement(ProfileComponent, { router: r }), document.getElementById('app'));
 	},
-	trip: function trip() {
-		ReactDOM.render(React.createElement(
-			'h1',
-			null,
-			'Trips'
-		), document.getElementById('app'));
+	trip: function trip(id) {
+		ReactDOM.render(React.createElement(TripsComponent, { trip: id, router: r }), document.getElementById('app'));
+	},
+	spot: function spot(id) {
+		ReactDOM.render(React.createElement(SpotComponent, { spot: id, router: r }), document.getElementById('app'));
 	}
 });
 
@@ -34780,14 +35300,35 @@ Backbone.history.start();
 
 ReactDOM.render(React.createElement(NavComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/LoginRegisterComponent":175,"./components/NavComponent":176,"./components/ProfileComponent":177,"backbone":1,"bootstrap":3,"jquery":17,"react":173,"react-dom":18}],179:[function(require,module,exports){
+},{"./components/LoginRegisterComponent":176,"./components/NavComponent":177,"./components/ProfileComponent":178,"./components/SpotComponent":179,"./components/TripComponent":180,"backbone":1,"bootstrap":3,"jquery":17,"react":173,"react-dom":18}],183:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
-	className: 'tripModel'
+	className: 'JournalEntryModel'
 });
 
-},{}]},{},[178])
+},{}],184:[function(require,module,exports){
+'use strict';
+
+module.exports = Parse.Object.extend({
+	className: 'PictureModel'
+});
+
+},{}],185:[function(require,module,exports){
+'use strict';
+
+module.exports = Parse.Object.extend({
+	className: 'SpotModel'
+});
+
+},{}],186:[function(require,module,exports){
+'use strict';
+
+module.exports = Parse.Object.extend({
+	className: 'TripModel'
+});
+
+},{}]},{},[182])
 
 
 //# sourceMappingURL=bundle.js.map

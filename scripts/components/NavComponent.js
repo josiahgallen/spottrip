@@ -18,6 +18,7 @@ module.exports = React.createClass({
 		var currentUser = Parse.User.current();
 		var dropDownLinks = [];
 		var links = [];
+		var currentURL = Backbone.history.getFragment();
 
 		if(Parse.User.current()) {
 			dropDownLinks.push(<li key="profileLink"><a href="#profile">Profile</a></li>);
@@ -28,7 +29,10 @@ module.exports = React.createClass({
 			dropDownLinks.push(<li key="registerLink"><a href="#register">Register</a></li>);
 			dropDownLinks.push(<li key="loginLink"><a href="#login">Login</a></li>);
 		}
-
+		// if (currentURL.indexOf('spot') > -1) {
+		// 	//need to figure out how to grab ahold of trip id for URL
+		// 	links.push(<li key="backToTrip"><a href={tripId} onClick={this.backToTrip}>Back To Trip</a></li>)
+		// }
 		return (
 			<nav className="navbar navbar-default">
 				<div className="container-fluid">
@@ -61,5 +65,8 @@ module.exports = React.createClass({
 		Parse.User.logOut();
 		this.props.router.navigate('', {trigger: true});
 		console.log('logout');
-	}
+	},
+	// backToTrip: function(id) {
+	// 	this.props.router.navigate('trip/'+id, {trigger: true})
+	// }
 });

@@ -31,6 +31,7 @@
   "dependencies": {
     "backbone": "^1.2.3",
     "bootstrap": "^3.3.5",
+    "filepicker": "^0.2.0",
     "gulp-ignore": "^2.0.1",
     "jquery": "^2.1.4",
     "react": "^0.14.0",

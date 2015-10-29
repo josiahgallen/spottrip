@@ -45,3 +45,9 @@ h1 {
   padding-left: 10px;
   height: none;
   border: none; }
+
+.dateHeading {
+  text-align: center; }
+
+#spotMap {
+  height: 40em; }
