@@ -7,6 +7,7 @@ window.jQuery = $;
 require('bootstrap');
 
 var NavComponent = require('./components/NavComponent');
+var HomePageComponent = require('./components/HomePageComponent');
 var LoginRegisterComponent = require('./components/LoginRegisterComponent');
 var ProfileComponent = require('./components/ProfileComponent');
 var TripsComponent = require('./components/TripComponent');
@@ -26,7 +27,7 @@ var Router = Backbone.Router.extend({
 		'spot/:id': 'spot'
 	},
 	home: function() {
-		ReactDOM.render(<h1>Home</h1>,document.getElementById('app'));
+		ReactDOM.render(<HomePageComponent router={r}/>,document.getElementById('app'));
 	},
 	login: function() {
 		ReactDOM.render(<LoginRegisterComponent router={r}/>,document.getElementById('app'));

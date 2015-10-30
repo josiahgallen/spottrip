@@ -93,7 +93,7 @@ module.exports = React.createClass({
 		}
 		return(
 			<div>
-				<h1>Welcome Back {currentUser.get('firstName')}!</h1>
+				<h1 className="pageHeader">Welcome Back {currentUser.get('firstName')}!</h1>
 				<TripsPortalComponent myList={myList} newestListItem={newTrip} listTitle={'Trip List'}>
 					<div ref="map"></div>
 				</TripsPortalComponent>

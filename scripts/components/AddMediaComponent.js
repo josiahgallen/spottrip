@@ -8,11 +8,18 @@ module.exports = React.createClass({
 	getInitialState: function() {
 		return{
 			pictures: [],
-			journalEntries: [],
-			newPic: []
+			journalEntries: []
 		}
 	},
 	componentWillMount: function() {
+		this.props.dispatcher.on('picAdded', (pic) => {
+			this.state.pictures.push(pic);
+			this.setState({pictures: this.state.pictures})
+		})
+		this.props.dispatcher.on('entryAdded', (entry) => {
+			this.state.journalEntries.push(entry);
+			this.setState({journalEntries: this.state.journalEntries});
+		})
 		var picQuery = new Parse.Query(PictureModel);
 		picQuery.equalTo('spotId', new SpotModel({objectId: this.props.spot})).find().then(
 			(pictures) => {
@@ -35,34 +42,34 @@ module.exports = React.createClass({
 	render: function() {
 		var pictures = [];
 		var entries = [];
-		var newPic = this.state.newPic;
-		
 		entries = this.state.journalEntries.map(function(entry) {
 			return(
 				<div key={entry.id}>
-					<p className="lead">{entry.get('title')}</p>
+					<p className="lead">{entry.get('title').toUpperCase()}</p>
 					<p>{entry.get('entry')}</p>
 				</div>
 			)
 		});
 		pictures = this.state.pictures.map(function(picture) {
 			return(
-				<div className="row" key={picture.id}>
-  					<div className="col-xs-6 col-md-3">
-    					<a href="#" className="thumbnail">
-      						<img src={picture.get('picture').url()} alt="../images/defaultPic.png"/>
-    					</a>
-  					</div>
-				</div>
+					<div className="col-xs-6 col-md-3" key={picture.id}>
+						<a href="#" className="thumbnail">
+							<img src={picture.get('picture').url()} alt="../images/defaultPic.png"/>
+							<label>{picture.get('caption')}</label>
+						</a>
+					</div>
 			)
 		});
 		return (
 			<div>
-				{pictures}
-				{newPic}
+				<div>
+					<button onClick={this.addBlog} type="button" className="btn btn-primary" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+					<button onClick={this.addPic} type="button" className="btn btn-primary" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-camera" aria-hidden="true"></span></button>
+				</div>
+				<div className="row">
+					{pictures}
+				</div>
 				{entries}
-				<button onClick={this.addBlog} type="button" className="btn btn-primary" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
-				<button onClick={this.addPic} type="button" className="btn btn-primary" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-camera" aria-hidden="true"></span></button>
 			</div>
 		);
 	},
@@ -70,7 +77,6 @@ module.exports = React.createClass({
 		this.props.onPicModalShow();
 	},
 	addBlog: function() {
-		console.log('clicked');
 		this.props.onModalShow();
 	}
 });

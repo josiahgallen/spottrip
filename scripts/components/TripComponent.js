@@ -98,7 +98,7 @@ module.exports = React.createClass({
 		this.state.newSpot ? newSpot = (<a key={this.state.newSpot.id} href={'#spot/'+this.state.newSpot.id} className="list-group-item"><strong>{this.state.newSpot.get('spotName')}</strong><div>{this.state.newSpot.get('spotDateStart').toDateString()} thru {this.state.newSpot.get('spotDateEnd').toDateString()}</div></a>): newSpot = [];
 		return (
 			<div>
-				<h1>{this.state.trip ? this.state.trip.get('tripName') : ''}</h1>
+				<h1 className="pageHeader">{this.state.trip ? this.state.trip.get('tripName') : ''}</h1>
 				<h4 className="dateHeading">{this.state.trip ? this.state.trip.get('tripStart').toDateString() +' - '+ this.state.trip.get('tripEnd').toDateString() : ''}</h4>
 				<SpotsPortalComponent myList={myList} newestListItem={newSpot} listTitle={'Trip Spots'}>
 					<div ref="map"></div>

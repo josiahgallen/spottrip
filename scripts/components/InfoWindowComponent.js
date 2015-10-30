@@ -6,13 +6,13 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<form onSubmit={this.addLocation}>
-					<input ref="tripTitle" type="text" placeholder="Trip Title"/>
+					<input ref="tripTitle" type="text" placeholder="Title"/>
 					<label>{this.props.address.formatted_address}</label><br/>
 					<input ref="startDate" type="date"/>
 					<label>Trip Start </label><br/>
 					<input ref="endDate" type="date"/>
 					<label> Trip End </label><br/>
-					<button>Create Trip</button>
+					<button>Add</button>
 				</form>
 			</div>
 		);

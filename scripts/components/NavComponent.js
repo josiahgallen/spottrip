@@ -29,12 +29,12 @@ module.exports = React.createClass({
 			dropDownLinks.push(<li key="registerLink"><a href="#register">Register</a></li>);
 			dropDownLinks.push(<li key="loginLink"><a href="#login">Login</a></li>);
 		}
-		// if (currentURL.indexOf('spot') > -1) {
-		// 	//need to figure out how to grab ahold of trip id for URL
-		// 	links.push(<li key="backToTrip"><a href={tripId} onClick={this.backToTrip}>Back To Trip</a></li>)
-		// }
+		if (currentURL.indexOf('spot') > -1) {
+			//need to figure out how to grab ahold of trip id for URL
+			links.push(<li key="backToTrip"><a href={"#trip"} onClick={this.backToTrip}>Back To Trip</a></li>)
+		}
 		return (
-			<nav className="navbar navbar-default">
+			<nav className="navbar navbar-default navbar-fixed-top">
 				<div className="container-fluid">
 					<div className="navbar-header">
 						<button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -65,7 +65,7 @@ module.exports = React.createClass({
 		Parse.User.logOut();
 		this.props.router.navigate('', {trigger: true});
 		console.log('logout');
-	},
+	}
 	// backToTrip: function(id) {
 	// 	this.props.router.navigate('trip/'+id, {trigger: true})
 	// }
