@@ -3,6 +3,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
 var InfoWindowComponent = require('./InfoWindowComponent');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var TripModel = require('../models/TripModel');
 var TripsPortalComponent = require('./TripsNSpotsPortalComponent');
 
@@ -93,10 +94,13 @@ module.exports = React.createClass({
 		}
 		return(
 			<div>
-				<h1 className="pageHeader">Welcome Back {currentUser.get('firstName')}!</h1>
+				<span><h1 className="pageHeader">Welcome Back {currentUser.get('firstName')}!</h1></span>
 				<TripsPortalComponent myList={myList} newestListItem={newTrip} listTitle={'Trip List'}>
 					<div ref="map"></div>
 				</TripsPortalComponent>
+				<BreadCrumbsBarComponent>
+					<li className="active">Profile</li>
+				</BreadCrumbsBarComponent>
 			</div>
 		)
 	},

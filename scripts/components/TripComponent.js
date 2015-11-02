@@ -3,6 +3,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var TripModel = require('../models/TripModel');
 var SpotModel = require('../models/SpotModel');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var SpotsPortalComponent = require('./TripsNSpotsPortalComponent');
 
@@ -98,6 +99,10 @@ module.exports = React.createClass({
 		this.state.newSpot ? newSpot = (<a key={this.state.newSpot.id} href={'#spot/'+this.state.newSpot.id} className="list-group-item"><strong>{this.state.newSpot.get('spotName')}</strong><div>{this.state.newSpot.get('spotDateStart').toDateString()} thru {this.state.newSpot.get('spotDateEnd').toDateString()}</div></a>): newSpot = [];
 		return (
 			<div>
+				<BreadCrumbsBarComponent>
+					<li><a href="#profile">Profile</a></li>
+					<li className="active">My Trip</li>
+				</BreadCrumbsBarComponent>
 				<h1 className="pageHeader">{this.state.trip ? this.state.trip.get('tripName') : ''}</h1>
 				<h4 className="dateHeading">{this.state.trip ? this.state.trip.get('tripStart').toDateString() +' - '+ this.state.trip.get('tripEnd').toDateString() : ''}</h4>
 				<SpotsPortalComponent myList={myList} newestListItem={newSpot} listTitle={'Trip Spots'}>

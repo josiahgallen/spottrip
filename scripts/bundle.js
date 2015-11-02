@@ -34084,7 +34084,7 @@ module.exports = require('./lib/React');
 'use strict';
 var React = require('react');
 var PictureModel = require('../models/PictureModel');
-var JournalEntryModel = require('../models/JournalEntryModel');
+var PictureModalComponent = require('./PictureModalComponent');
 var SpotModel = require('../models/SpotModel');
 
 module.exports = React.createClass({
@@ -34092,8 +34092,7 @@ module.exports = React.createClass({
 
 	getInitialState: function getInitialState() {
 		return {
-			pictures: [],
-			journalEntries: []
+			pictures: []
 		};
 	},
 	componentWillMount: function componentWillMount() {
@@ -34103,81 +34102,26 @@ module.exports = React.createClass({
 			_this.state.pictures.push(pic);
 			_this.setState({ pictures: _this.state.pictures });
 		});
-		this.props.dispatcher.on('entryAdded', function (entry) {
-			_this.state.journalEntries.push(entry);
-			_this.setState({ journalEntries: _this.state.journalEntries });
-		});
 		var picQuery = new Parse.Query(PictureModel);
 		picQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (pictures) {
 			_this.setState({ pictures: pictures });
 		}, function (err) {
 			console.log(err);
 		});
-		var journalQuery = new Parse.Query(JournalEntryModel);
-		journalQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (entries) {
-			_this.setState({ journalEntries: entries });
-		}, function (err) {
-			console.log(err);
-		});
 	},
 	render: function render() {
 		var pictures = [];
-		var entries = [];
-		entries = this.state.journalEntries.map(function (entry) {
-			return React.createElement(
-				'div',
-				{ key: entry.id },
-				React.createElement(
-					'p',
-					{ className: 'lead' },
-					entry.get('title').toUpperCase()
-				),
-				React.createElement(
-					'p',
-					null,
-					entry.get('entry')
-				)
-			);
-		});
 		pictures = this.state.pictures.map(function (picture) {
-			return React.createElement(
-				'div',
-				{ className: 'col-xs-6 col-md-3', key: picture.id },
-				React.createElement(
-					'a',
-					{ href: '#', className: 'thumbnail' },
-					React.createElement('img', { src: picture.get('picture').url(), alt: '../images/defaultPic.png' }),
-					React.createElement(
-						'label',
-						null,
-						picture.get('caption')
-					)
-				)
-			);
+			return React.createElement(PictureModalComponent, { picture: picture, key: picture.id });
 		});
 		return React.createElement(
 			'div',
 			null,
 			React.createElement(
 				'div',
-				null,
-				React.createElement(
-					'button',
-					{ onClick: this.addBlog, type: 'button', className: 'btn btn-primary', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
-				),
-				React.createElement(
-					'button',
-					{ onClick: this.addPic, type: 'button', className: 'btn btn-primary', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
+				{ className: 'row col-xs-offset-1 col-sm-offset-2' },
 				pictures
-			),
-			entries
+			)
 		);
 	},
 	addPic: function addPic() {
@@ -34188,7 +34132,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/JournalEntryModel":185,"../models/PictureModel":186,"../models/SpotModel":187,"react":174}],176:[function(require,module,exports){
+},{"../models/PictureModel":188,"../models/SpotModel":189,"./PictureModalComponent":181,"react":174}],176:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34197,61 +34141,158 @@ module.exports = React.createClass({
 
 	render: function render() {
 		return React.createElement(
-			'div',
-			{ id: 'carousel-example-generic', className: 'carousel slide', 'data-ride': 'carousel' },
-			'//Indicators',
+			'ol',
+			{ className: 'breadcrumb navbar-fixed-top' },
 			React.createElement(
-				'ol',
-				{ className: 'carousel-indicators' },
-				React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '0', className: 'active' }),
-				React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '1' }),
-				React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '2' })
+				'li',
+				null,
+				React.createElement(
+					'a',
+					{ href: '#' },
+					'Home'
+				)
 			),
-			'//Wrapper for slides',
+			this.props.children
+		);
+	}
+});
+
+},{"react":174}],177:[function(require,module,exports){
+'use strict';
+var React = require('react');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
 			React.createElement(
 				'div',
-				{ className: 'carousel-inner', role: 'listbox' },
+				{ id: 'carousel-example-generic', className: 'carousel slide', 'data-ride': 'carousel' },
+				'//Indicators',
+				React.createElement(
+					'ol',
+					{ className: 'carousel-indicators' },
+					React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '0', className: 'active' }),
+					React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '1' }),
+					React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '2' }),
+					React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '3' }),
+					React.createElement('li', { 'data-target': '#carousel-example-generic', 'data-slide-to': '4' })
+				),
+				'//Wrapper for slides',
 				React.createElement(
 					'div',
-					{ className: 'item active' },
-					React.createElement('img', { src: '../images/DSC_0190.jpg' }),
+					{ className: 'carousel-inner', role: 'listbox' },
 					React.createElement(
 						'div',
-						{ className: 'carousel-caption' },
-						'...'
+						{ className: 'item active' },
+						React.createElement('img', { className: 'carouselPic', src: '../images/DSC_0286.jpg' }),
+						React.createElement(
+							'div',
+							{ className: 'carousel-caption' },
+							React.createElement(
+								'div',
+								{ className: 'hoverScreen' },
+								React.createElement('img', { src: '../images/badgeWhite.png' })
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'item' },
+						React.createElement('img', { className: 'carouselPic', src: '../images/DSC_0368.jpg' }),
+						React.createElement(
+							'div',
+							{ className: 'carousel-caption' },
+							React.createElement(
+								'div',
+								{ className: 'hoverScreen' },
+								React.createElement('img', { src: '../images/badgeWhite.png' })
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'item' },
+						React.createElement('img', { className: 'carouselPic', src: '../images/DSC_3050.jpg' }),
+						React.createElement(
+							'div',
+							{ className: 'carousel-caption' },
+							React.createElement(
+								'div',
+								{ className: 'hoverScreen' },
+								React.createElement('img', { src: '../images/badgeWhite.png' })
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'item' },
+						React.createElement('img', { className: 'carouselPic', src: '../images/DSC_3156.jpg' }),
+						React.createElement(
+							'div',
+							{ className: 'carousel-caption' },
+							React.createElement(
+								'div',
+								{ className: 'hoverScreen' },
+								React.createElement('img', { src: '../images/badgeWhite.png' })
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'item' },
+						React.createElement('img', { className: 'carouselPic', src: '../images/DSC_2712.jpg' }),
+						React.createElement(
+							'div',
+							{ className: 'carousel-caption' },
+							React.createElement(
+								'div',
+								{ className: 'hoverScreen' },
+								React.createElement('img', { src: '../images/badgeWhite.png' })
+							)
+						)
 					)
 				),
 				React.createElement(
-					'div',
-					{ className: 'item' },
-					React.createElement('img', { src: '../images/DSC_0284.jpg' }),
+					'a',
+					{ className: 'left carousel-control', href: '#carousel-example-generic', role: 'button', 'data-slide': 'prev' },
+					React.createElement('span', { className: 'glyphicon glyphicon-chevron-left', 'aria-hidden': 'true' }),
 					React.createElement(
-						'div',
-						{ className: 'carousel-caption' },
-						'...'
+						'span',
+						{ className: 'sr-only' },
+						'Previous'
 					)
 				),
-				'...'
-			),
-			'//Controls',
-			React.createElement(
-				'a',
-				{ className: 'left carousel-control', href: '#carousel-example-generic', role: 'button', 'data-slide': 'prev' },
-				React.createElement('span', { className: 'glyphicon glyphicon-chevron-left', 'aria-hidden': 'true' }),
 				React.createElement(
-					'span',
-					{ className: 'sr-only' },
-					'Previous'
+					'a',
+					{ className: 'right carousel-control', href: '#carousel-example-generic', role: 'button', 'data-slide': 'next' },
+					React.createElement('span', { className: 'glyphicon glyphicon-chevron-right', 'aria-hidden': 'true' }),
+					React.createElement(
+						'span',
+						{ className: 'sr-only' },
+						'Next'
+					)
 				)
 			),
 			React.createElement(
-				'a',
-				{ className: 'right carousel-control', href: '#carousel-example-generic', role: 'button', 'data-slide': 'next' },
-				React.createElement('span', { className: 'glyphicon glyphicon-chevron-right', 'aria-hidden': 'true' }),
+				'div',
+				{ className: 'container-fluid' },
 				React.createElement(
-					'span',
-					{ className: 'sr-only' },
-					'Next'
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'well myWell well-md col-xs-8 col-xs-offset-2', id: 'pageLead' },
+						React.createElement(
+							'p',
+							{ className: 'lead' },
+							'Lucas ipsum dolor sit amet darth darth moff skywalker ewok darth jabba gamorrean jawa darth. Sidious mace han sebulba. Calamari ackbar calamari ventress solo ventress sith jawa c-3p0. Mothma cade coruscant hutt darth yavin windu lars calamari. Greedo vader fett jade palpatine. Owen organa calrissian ben han yoda. Antilles obi-wan mustafar yoda. Naboo solo kit kenobi skywalker darth kessel secura solo. Leia organa dantooine jawa hutt lars. Mandalore moff jawa leia obi-wan secura amidala secura windu. Darth chewbacca darth wampa jawa binks maul ben gonk. Solo antilles darth moff skywalker amidala skywalker ben alderaan. Cade skywalker jinn fett moff cade gonk. Antilles darth antilles ponda. Hutt lando jar jinn organa kenobi endor windu. Bespin wookiee darth padmé ventress. Bothan coruscant moff solo antilles chewbacca cade jawa. Skywalker chewbacca amidala. Wookiee kashyyyk dantooine solo tatooine amidala. Skywalker luke gonk binks ventress vader fett. Coruscant darth qui-gonn moff watto alderaan.'
+						)
+					)
 				)
 			)
 		);
@@ -34263,7 +34304,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],177:[function(require,module,exports){
+},{"./BreadCrumbsBarComponent":176,"react":174}],178:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34313,7 +34354,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],178:[function(require,module,exports){
+},{"react":174}],179:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -34509,7 +34550,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"react":174}],179:[function(require,module,exports){
+},{"backbone":1,"react":174}],180:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var Backbone = require('backbone');
@@ -34534,7 +34575,6 @@ module.exports = React.createClass({
 		var currentUser = Parse.User.current();
 		var dropDownLinks = [];
 		var links = [];
-		var currentURL = Backbone.history.getFragment();
 
 		if (Parse.User.current()) {
 			dropDownLinks.push(React.createElement(
@@ -34585,18 +34625,7 @@ module.exports = React.createClass({
 				)
 			));
 		}
-		if (currentURL.indexOf('spot') > -1) {
-			//need to figure out how to grab ahold of trip id for URL
-			links.push(React.createElement(
-				'li',
-				{ key: 'backToTrip' },
-				React.createElement(
-					'a',
-					{ href: "#trip", onClick: this.backToTrip },
-					'Back To Trip'
-				)
-			));
-		}
+
 		return React.createElement(
 			'nav',
 			{ className: 'navbar navbar-default navbar-fixed-top' },
@@ -34667,12 +34696,110 @@ module.exports = React.createClass({
 	// }
 });
 
-},{"backbone":1,"bootstrap":4,"react":174}],180:[function(require,module,exports){
+},{"backbone":1,"bootstrap":4,"react":174}],181:[function(require,module,exports){
+'use strict';
+var React = require('react');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	componentWillMount: function componentWillMount() {
+		$('#myModal').on('shown.bs.modal', function () {
+			$('#myInput').show();
+		});
+	},
+	render: function render() {
+		return React.createElement(
+			'div',
+			{ key: this.props.picture.id },
+			React.createElement(
+				'div',
+				{ className: 'col-xs-10 col-sm-10 col-md-10 col-lg-5' },
+				React.createElement(
+					'a',
+					{ onClick: this.onFullPicShow },
+					React.createElement(
+						'div',
+						{ className: 'thumbnail', style: { backgroundImage: 'url(' + this.props.picture.get('picture').url() + ')' } },
+						React.createElement(
+							'div',
+							{ className: 'labelWrapper' },
+							React.createElement(
+								'label',
+								null,
+								React.createElement(
+									'h3',
+									null,
+									this.props.picture.get('title')
+								)
+							),
+							React.createElement('br', null)
+						),
+						React.createElement(
+							'div',
+							{ className: 'labelWrapper captionWrapper' },
+							React.createElement(
+								'label',
+								null,
+								this.props.picture.get('caption')
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ id: this.props.picture.id, className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content' },
+						React.createElement(
+							'div',
+							{ className: 'pictureModal', style: { backgroundImage: 'url(' + this.props.picture.get('picture').url() + ')' } },
+							React.createElement(
+								'div',
+								{ className: 'labelWrapper' },
+								React.createElement(
+									'label',
+									null,
+									React.createElement(
+										'h3',
+										null,
+										this.props.picture.get('title')
+									)
+								),
+								React.createElement('br', null)
+							),
+							React.createElement(
+								'div',
+								{ className: 'labelWrapper captionWrapper' },
+								React.createElement(
+									'label',
+									null,
+									this.props.picture.get('caption')
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	},
+	onFullPicShow: function onFullPicShow() {
+		$('#' + this.props.picture.id).modal('show');
+	}
+});
+
+},{"react":174}],182:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
 var InfoWindowComponent = require('./InfoWindowComponent');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var TripModel = require('../models/TripModel');
 var TripsPortalComponent = require('./TripsNSpotsPortalComponent');
 
@@ -34795,16 +34922,29 @@ module.exports = React.createClass({
 			'div',
 			null,
 			React.createElement(
-				'h1',
-				{ className: 'pageHeader' },
-				'Welcome Back ',
-				currentUser.get('firstName'),
-				'!'
+				'span',
+				null,
+				React.createElement(
+					'h1',
+					{ className: 'pageHeader' },
+					'Welcome Back ',
+					currentUser.get('firstName'),
+					'!'
+				)
 			),
 			React.createElement(
 				TripsPortalComponent,
 				{ myList: myList, newestListItem: newTrip, listTitle: 'Trip List' },
 				React.createElement('div', { ref: 'map' })
+			),
+			React.createElement(
+				BreadCrumbsBarComponent,
+				null,
+				React.createElement(
+					'li',
+					{ className: 'active' },
+					'Profile'
+				)
 			)
 		);
 	},
@@ -34840,12 +34980,13 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/TripModel":188,"./InfoWindowComponent":177,"./TripsNSpotsPortalComponent":183,"backbone":1,"react":174,"react-dom":19}],181:[function(require,module,exports){
+},{"../models/TripModel":190,"./BreadCrumbsBarComponent":176,"./InfoWindowComponent":178,"./TripsNSpotsPortalComponent":185,"backbone":1,"react":174,"react-dom":19}],183:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var SpotModel = require('../models/SpotModel');
 var AddMediaComponent = require('./AddMediaComponent');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var PictureModel = require('../models/PictureModel');
 var JournalEntryModel = require('../models/JournalEntryModel');
 var Backbone = require('backbone');
@@ -34857,7 +34998,8 @@ module.exports = React.createClass({
 	getInitialState: function getInitialState() {
 		return {
 			spot: null,
-			newPic: null
+			newPic: null,
+			journalEntries: []
 		};
 	},
 	componentWillMount: function componentWillMount() {
@@ -34871,28 +35013,56 @@ module.exports = React.createClass({
 		var query = new Parse.Query(SpotModel);
 		query.get(this.props.spot).then(function (spot) {
 			var popUp = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
-			var mapCenter = { lat: spot.get('spotMarker').latitude + 4, lng: spot.get('spotMarker').longitude };
+			var mapCenter = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
 
 			_this.map = new google.maps.Map(_this.refs.map, {
 				center: mapCenter,
-				zoom: 6,
+				zoom: 8,
 				disableDefaultUI: true,
 				zoomControl: true
 			});
-			var infoWindow = new google.maps.InfoWindow({
+			var marker = new google.maps.Marker({
 				map: _this.map,
-				position: popUp
+				position: popUp,
+				title: spot.get('spotName')
 			});
-			var infoWindowContainer = document.createElement('div');
-			ReactDOM.render(React.createElement(AddMediaComponent, { dispatcher: _this.dispatcher, newPic: _this.state.newPic, onPicModalShow: _this.onPicModalShow, onModalShow: _this.onModalShow, spot: _this.props.spot }), infoWindowContainer);
-
-			infoWindow.setContent(infoWindowContainer);
 			_this.setState({ map: _this.map, spot: spot });
 		}, function (err) {
 			console.log(err);
 		});
+		var journalQuery = new Parse.Query(JournalEntryModel);
+		journalQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (entries) {
+			_this.setState({ journalEntries: entries });
+		}, function (err) {
+			console.log(err);
+		});
+		this.dispatcher.on('entryAdded', function (entry) {
+			_this.state.journalEntries.push(entry);
+			_this.setState({ journalEntries: _this.state.journalEntries });
+		});
 	},
 	render: function render() {
+		var entries = [];
+		entries = this.state.journalEntries.map(function (entry) {
+			return React.createElement(
+				'div',
+				{ key: entry.id, className: 'entryWrapper' },
+				React.createElement(
+					'a',
+					{ href: '#', className: 'caption' },
+					React.createElement(
+						'h3',
+						null,
+						entry.get('title').toUpperCase()
+					),
+					React.createElement(
+						'p',
+						null,
+						entry.get('entry').substring(0, 139) + '...'
+					)
+				)
+			);
+		});
 		return React.createElement(
 			'div',
 			null,
@@ -34901,7 +35071,58 @@ module.exports = React.createClass({
 				{ className: 'pageHeader' },
 				this.state.spot ? this.state.spot.get('spotName') : ''
 			),
-			React.createElement('div', { id: 'spotMap', ref: 'map' }),
+			React.createElement(
+				BreadCrumbsBarComponent,
+				null,
+				React.createElement(
+					'li',
+					null,
+					React.createElement(
+						'a',
+						{ href: '#profile' },
+						'Profile'
+					)
+				),
+				React.createElement(
+					'li',
+					null,
+					React.createElement(
+						'a',
+						{ href: this.state.spot ? '#trip/' + this.state.spot.get('tripId').id : '#trip' },
+						'My Trip'
+					)
+				),
+				React.createElement(
+					'li',
+					{ className: 'active' },
+					'My Spot'
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row col-xs-offset-1' },
+				React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-10 col-sm-3 ' }),
+				React.createElement(
+					'div',
+					{ className: 'entryContainer col-xs-10 col-sm-7' },
+					entries
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'addMediaButtonsWrapper navbar-fixed-bottom' },
+				React.createElement(
+					'button',
+					{ onClick: this.onModalShow, type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
+				),
+				React.createElement(
+					'button',
+					{ onClick: this.onPicModalShow, type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
+				)
+			),
+			React.createElement(AddMediaComponent, { dispatcher: this.dispatcher, picture: this.state.newPic, onFullPicModalShow: this.onFullPicModalShow, onPicModalShow: this.onPicModalShow, onModalShow: this.onModalShow, spot: this.props.spot }),
 			React.createElement(
 				'div',
 				{ ref: 'myModal', id: 'myModal', className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
@@ -34990,6 +35211,9 @@ module.exports = React.createClass({
 	onPicModalShow: function onPicModalShow(e) {
 		$(this.refs.picModal).modal('show');
 	},
+	onFullPicModalShow: function onFullPicModalShow(e) {
+		$(this.refs.picture.id);
+	},
 	addJournalEntry: function addJournalEntry() {
 		var _this2 = this;
 
@@ -35032,12 +35256,13 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/JournalEntryModel":185,"../models/PictureModel":186,"../models/SpotModel":187,"./AddMediaComponent":175,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],182:[function(require,module,exports){
+},{"../models/JournalEntryModel":187,"../models/PictureModel":188,"../models/SpotModel":189,"./AddMediaComponent":175,"./BreadCrumbsBarComponent":176,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],184:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var TripModel = require('../models/TripModel');
 var SpotModel = require('../models/SpotModel');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var SpotsPortalComponent = require('./TripsNSpotsPortalComponent');
 
@@ -35162,6 +35387,24 @@ module.exports = React.createClass({
 			'div',
 			null,
 			React.createElement(
+				BreadCrumbsBarComponent,
+				null,
+				React.createElement(
+					'li',
+					null,
+					React.createElement(
+						'a',
+						{ href: '#profile' },
+						'Profile'
+					)
+				),
+				React.createElement(
+					'li',
+					{ className: 'active' },
+					'My Trip'
+				)
+			),
+			React.createElement(
 				'h1',
 				{ className: 'pageHeader' },
 				this.state.trip ? this.state.trip.get('tripName') : ''
@@ -35211,7 +35454,7 @@ module.exports = React.createClass({
 
 });
 
-},{"../models/SpotModel":187,"../models/TripModel":188,"./InfoWindowComponent":177,"./TripsNSpotsPortalComponent":183,"react":174,"react-dom":19}],183:[function(require,module,exports){
+},{"../models/SpotModel":189,"../models/TripModel":190,"./BreadCrumbsBarComponent":176,"./InfoWindowComponent":178,"./TripsNSpotsPortalComponent":185,"react":174,"react-dom":19}],185:[function(require,module,exports){
 'use strict';
 
 'usestrict';
@@ -35224,6 +35467,9 @@ module.exports = React.createClass({
 	displayName: 'exports',
 
 	render: function render() {
+		var currentURL = Backbone.history.getFragment();
+		var buttonTitle = 'Start a new Trip';
+		currentURL.indexOf('trip') > -1 ? buttonTitle = 'Add a new Spot' : '';
 		return React.createElement(
 			'div',
 			null,
@@ -35246,7 +35492,7 @@ module.exports = React.createClass({
 						'div',
 						{ className: 'floating-panel' },
 						React.createElement('input', { className: 'address', id: 'tripInput', type: 'textbox', defaultValue: 'Austin, TX' }),
-						React.createElement('input', { className: 'submit', id: 'tripSearchButton', type: 'button', value: 'Find Location' })
+						React.createElement('input', { className: 'submit', id: 'tripSearchButton', type: 'button', value: buttonTitle })
 					),
 					this.props.children
 				),
@@ -35323,7 +35569,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],184:[function(require,module,exports){
+},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],186:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35375,35 +35621,35 @@ Backbone.history.start();
 
 ReactDOM.render(React.createElement(NavComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/HomePageComponent":176,"./components/LoginRegisterComponent":178,"./components/NavComponent":179,"./components/ProfileComponent":180,"./components/SpotComponent":181,"./components/TripComponent":182,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],185:[function(require,module,exports){
+},{"./components/HomePageComponent":177,"./components/LoginRegisterComponent":179,"./components/NavComponent":180,"./components/ProfileComponent":182,"./components/SpotComponent":183,"./components/TripComponent":184,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],187:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'JournalEntryModel'
 });
 
-},{}],186:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'PictureModel'
 });
 
-},{}],187:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'SpotModel'
 });
 
-},{}],188:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'TripModel'
 });
 
-},{}]},{},[184])
+},{}]},{},[186])
 
 
 //# sourceMappingURL=bundle.js.map

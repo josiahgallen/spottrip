@@ -3,6 +3,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var SpotModel = require('../models/SpotModel');
 var AddMediaComponent = require('./AddMediaComponent');
+var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var PictureModel = require('../models/PictureModel');
 var JournalEntryModel = require('../models/JournalEntryModel');
 var Backbone = require('backbone');
@@ -12,7 +13,8 @@ module.exports = React.createClass({
 	getInitialState: function() {
 		return {
 			spot: null,
-			newPic: null
+			newPic: null,
+			journalEntries: []
 		}
 	},
 	componentWillMount: function() {
@@ -25,34 +27,70 @@ module.exports = React.createClass({
 		query.get(this.props.spot).then(
 			(spot) => {
 				var popUp = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
-				var mapCenter = {lat: spot.get('spotMarker').latitude + 4, lng: spot.get('spotMarker').longitude};
+				var mapCenter = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
 		
 				this.map = new google.maps.Map(this.refs.map, {
 				center:  mapCenter,
-				zoom: 6,
+				zoom: 8,
 				disableDefaultUI: true,
 				zoomControl: true
 				});
-				var infoWindow = new google.maps.InfoWindow({
+				var marker = new google.maps.Marker({
 						map: this.map,
-						position: popUp
+						position: popUp,
+						title: spot.get('spotName')
 				});
-				var infoWindowContainer = document.createElement('div');
-					ReactDOM.render(<AddMediaComponent dispatcher={this.dispatcher} newPic={this.state.newPic} onPicModalShow={this.onPicModalShow} onModalShow={this.onModalShow} spot={this.props.spot} />, infoWindowContainer);
-
-					infoWindow.setContent(infoWindowContainer);
 				this.setState({map: this.map, spot: spot});
 			},
 			(err) => {
 				console.log(err);
 			}
 		)
+		var journalQuery = new Parse.Query(JournalEntryModel);
+		journalQuery.equalTo('spotId', new SpotModel({objectId: this.props.spot})).find().then(
+			(entries) => {
+				this.setState({journalEntries: entries});
+			},
+			(err) => {
+				console.log(err);
+			}
+		)
+		this.dispatcher.on('entryAdded', (entry) => {
+			this.state.journalEntries.push(entry);
+			this.setState({journalEntries: this.state.journalEntries});
+		})
 	},
 	render: function() {
+		var entries = [];
+		entries = this.state.journalEntries.map(function(entry) {
+			return(
+				<div key={entry.id} className="entryWrapper">
+					<a href="#" className="caption">
+						<h3>{entry.get('title').toUpperCase()}</h3>
+						<p>{entry.get('entry').substring(0,139)+'...'}</p>
+					</a>
+				</div>
+			)
+		});
 		return (
 			<div>
 				<h1 className="pageHeader">{this.state.spot ? this.state.spot.get('spotName') : ''}</h1>
-				<div id="spotMap" ref="map"></div>
+				<BreadCrumbsBarComponent>
+					<li><a href="#profile">Profile</a></li>
+					<li><a href={this.state.spot ? '#trip/'+this.state.spot.get('tripId').id : '#trip'}>My Trip</a></li>
+					<li className="active">My Spot</li>
+				</BreadCrumbsBarComponent>
+				<div className="row col-xs-offset-1">
+					<div id="spotMap" ref="map" className="col-xs-10 col-sm-3 "></div>
+					<div className="entryContainer col-xs-10 col-sm-7">
+						{entries}
+					</div>
+				</div>
+				<div className="addMediaButtonsWrapper navbar-fixed-bottom">
+					<button onClick={this.onModalShow} type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+					<button onClick={this.onPicModalShow} type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-camera" aria-hidden="true"></span></button>
+				</div>
+				<AddMediaComponent dispatcher={this.dispatcher} picture={this.state.newPic} onFullPicModalShow={this.onFullPicModalShow} onPicModalShow={this.onPicModalShow} onModalShow={this.onModalShow} spot={this.props.spot} />
 				<div ref="myModal"id="myModal" className="modal fade bs-example-modal-lg" tabIndex="-1" role="dialog" ariaLabelledby="myLargeModalLabel">
 					<div className="modal-dialog modal-lg">
 						<div className="modal-content">
@@ -97,6 +135,9 @@ module.exports = React.createClass({
 	},
 	onPicModalShow: function(e) {
 		$(this.refs.picModal).modal('show');
+	},
+	onFullPicModalShow: function(e) {
+		$(this.refs.picture.id)
 	},
 	addJournalEntry: function() {
 		var newEntry = new JournalEntryModel({

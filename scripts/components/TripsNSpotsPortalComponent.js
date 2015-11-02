@@ -6,6 +6,9 @@ require('bootstrap');
 
 module.exports = React.createClass({
 	render: function() {
+		var currentURL = Backbone.history.getFragment();
+		var buttonTitle = 'Start a new Trip';
+		currentURL.indexOf('trip') > -1 ? buttonTitle = 'Add a new Spot' : '';
 		return(
 			<div>
 				<div className="panel panel-default col-sm-offset-1 col-sm-6">
@@ -15,7 +18,7 @@ module.exports = React.createClass({
 					<div className="panel-body">
 						<div className="floating-panel">
 							<input className="address" id="tripInput" type="textbox" defaultValue="Austin, TX"/>
-							<input className="submit" id="tripSearchButton" type="button" value="Find Location"/>
+							<input className="submit" id="tripSearchButton" type="button" value={buttonTitle}/>
 						</div>
 						{this.props.children}
 					</div>
