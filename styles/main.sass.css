@@ -1,9 +1,14 @@
 @import url(https://fonts.googleapis.com/css?family=Grand+Hotel);
+@import url(https://fonts.googleapis.com/css?family=Slabo+27px);
 html, body {
   background-image: url("../images/grey.png");
   height: 100%;
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  font-family: "Slabo 27px", serif; }
+
+textarea {
+  resize: none; }
 
 #map {
   height: 50%;
@@ -14,12 +19,12 @@ html, body {
   border-radius: none; }
 
 .navbar-brand {
-  font-family: 'Grand Hotel', cursive;
+  font-family: "Grand Hotel", cursive;
   font-size: 2em; }
 
 h1 {
   text-align: center;
-  font-family: 'Grand Hotel', cursive; }
+  font-family: "Grand Hotel", cursive; }
 
 .pageHeader {
   margin: 3em auto 1em auto; }
@@ -60,26 +65,25 @@ h1 {
   text-align: center; }
 
 #spotMap {
+  margin-left: 1em;
   height: 20em;
-  width: 30em;
   margin-bottom: 2em;
-  -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-  box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75); }
-
-.entryContainer {
-  overflow: scroll;
-  height: 20em; }
+  -webkit-box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4); }
 
 .entryWrapper {
-  background-color: #eeede6;
+  margin-left: 1em;
+  margin-right: 6.2em;
+  background-color: white;
   padding: 1em;
+  width: 29em;
   margin-bottom: 1em;
-  -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-  box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75); }
+  -webkit-box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4); }
   .entryWrapper .caption {
-    color: #f75c50; }
+    color: #333; }
   .entryWrapper .caption:hover {
     text-decoration: none;
     color: #c83d33; }
@@ -101,6 +105,7 @@ h1 {
 
 .thumbnail {
   transition: all 0.2s ease-in-out;
+  cursor: pointer;
   color: white;
   border-radius: 0;
   padding: 0;
@@ -109,9 +114,9 @@ h1 {
   width: 29em;
   background-size: cover;
   text-align: center;
-  -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-  -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75);
-  box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.75); }
+  -webkit-box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 5px 5px 2.5px 0px rgba(0, 0, 0, 0.4); }
   .thumbnail .labelWrapper {
     background-color: rgba(0, 0, 0, 0.3); }
   .thumbnail .captionWrapper {
@@ -144,6 +149,19 @@ h1 {
   padding-left: .5em;
   outline: none; }
 
+#createATripButton {
+  background-color: #B2D0FF;
+  border: none;
+  margin-top: .5em;
+  padding: .5em; }
+  #createATripButton a {
+    color: black; }
+
+nav #createATripButton:hover {
+  background-color: gray; }
+  nav #createATripButton:hover a {
+    text-decoration: none; }
+
 .hoverButton {
   position: relative;
   bottom: 20em;
@@ -160,11 +178,63 @@ h1 {
   background-color: #c83d33; }
 
 .pictureModal {
+  box-shadow: none;
+  border: none;
+  margin-top: 5em;
+  background-color: transparent;
   z-index: 10500;
-  margin-left: auto;
-  margin-right: auto;
+  background-position-x: center;
   text-align: center;
-  height: 35em;
+  height: 40em;
   overflow: hidden;
   background-size: contain;
   background-repeat: no-repeat; }
+
+.modalTitle {
+  color: white;
+  text-shadow: 2px 2px 2px black; }
+
+.modalCap {
+  width: 30em;
+  margin-top: 27em;
+  color: white;
+  text-shadow: 2px 2px 2px black; }
+
+.inputModal {
+  border-radius: 0;
+  padding: 1em; }
+  .inputModal input {
+    margin-bottom: 1em;
+    border-radius: 0; }
+  .inputModal textarea {
+    margin-bottom: 1em;
+    border-radius: 0; }
+  .inputModal button {
+    border-radius: 0;
+    background-color: #B2D0FF; }
+  .inputModal button:hover {
+    background-color: gray; }
+  .inputModal .cancel {
+    background-color: gray;
+    color: white; }
+  .inputModal .cancel:hover {
+    background-color: #E3E3E4;
+    color: black; }
+  .inputModal button:nth-child(2) {
+    margin-right: 1em; }
+
+.entryModal {
+  border: none;
+  border-top: 10em solid transparent;
+  box-shadow: none; }
+  .entryModal h3 {
+    color: #333;
+    text-shadow: none; }
+
+.closeModalButton {
+  color: white;
+  text-shadow: 2px 2px 2px black;
+  cursor: pointer; }
+
+.closeModalButton:hover {
+  color: #f75c50; }

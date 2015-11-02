@@ -34083,6 +34083,48 @@ module.exports = require('./lib/React');
 },{"./lib/React":43}],175:[function(require,module,exports){
 'use strict';
 var React = require('react');
+var JournalEntryModel = require('../models/JournalEntryModel');
+var EntryModalComponent = require('./EntryModalComponent');
+var SpotModel = require('../models/SpotModel');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	getInitialState: function getInitialState() {
+		return {
+			journalEntries: []
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var _this = this;
+
+		var journalQuery = new Parse.Query(JournalEntryModel);
+		journalQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (entries) {
+			_this.setState({ journalEntries: entries });
+		}, function (err) {
+			console.log(err);
+		});
+		this.props.dispatcher.on('entryAdded', function (entry) {
+			_this.state.journalEntries.push(entry);
+			_this.setState({ journalEntries: _this.state.journalEntries });
+		});
+	},
+	render: function render() {
+		var entries = [];
+		entries = this.state.journalEntries.map(function (entry) {
+			return React.createElement(EntryModalComponent, { entry: entry, key: entry.id });
+		});
+		return React.createElement(
+			'div',
+			{ className: 'row col-xs-offset-2' },
+			entries
+		);
+	}
+});
+
+},{"../models/JournalEntryModel":189,"../models/SpotModel":191,"./EntryModalComponent":178,"react":174}],176:[function(require,module,exports){
+'use strict';
+var React = require('react');
 var PictureModel = require('../models/PictureModel');
 var PictureModalComponent = require('./PictureModalComponent');
 var SpotModel = require('../models/SpotModel');
@@ -34123,16 +34165,10 @@ module.exports = React.createClass({
 				pictures
 			)
 		);
-	},
-	addPic: function addPic() {
-		this.props.onPicModalShow();
-	},
-	addBlog: function addBlog() {
-		this.props.onModalShow();
 	}
 });
 
-},{"../models/PictureModel":188,"../models/SpotModel":189,"./PictureModalComponent":181,"react":174}],176:[function(require,module,exports){
+},{"../models/PictureModel":190,"../models/SpotModel":191,"./PictureModalComponent":183,"react":174}],177:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34157,7 +34193,74 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],177:[function(require,module,exports){
+},{"react":174}],178:[function(require,module,exports){
+'use strict';
+var React = require('react');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	componentWillMount: function componentWillMount() {
+		$('#myModal').on('shown.bs.modal', function () {
+			$('#myInput').show();
+		});
+	},
+	render: function render() {
+		return React.createElement(
+			'div',
+			{ key: this.props.entry.id },
+			React.createElement(
+				'div',
+				{ className: 'entryWrapper col-xs-10 col-sm-10 col-md-10 col-lg-5' },
+				React.createElement(
+					'a',
+					{ onClick: this.onFullPicShow, className: 'caption' },
+					React.createElement(
+						'h3',
+						null,
+						this.props.entry.get('title').toUpperCase()
+					),
+					React.createElement(
+						'p',
+						null,
+						this.props.entry.get('entry').substring(0, 139) + '...'
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ ref: 'myModal', id: this.props.entry.id, className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content inputModal entryModal' },
+						React.createElement(
+							'h3',
+							{ className: 'modalTitle' },
+							this.props.entry.get('title').toUpperCase()
+						),
+						React.createElement(
+							'p',
+							null,
+							this.props.entry.get('entry')
+						)
+					)
+				)
+			)
+		);
+	},
+	onFullPicShow: function onFullPicShow() {
+		$('#' + this.props.entry.id).modal('show');
+	},
+	closeModal: function closeModal() {
+		console.log('#closed');
+		$('#' + this.props.entry.id).modal('hide');
+	}
+});
+
+},{"react":174}],179:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
@@ -34304,7 +34407,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"./BreadCrumbsBarComponent":176,"react":174}],178:[function(require,module,exports){
+},{"./BreadCrumbsBarComponent":177,"react":174}],180:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34354,7 +34457,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],179:[function(require,module,exports){
+},{"react":174}],181:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -34550,7 +34653,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"react":174}],180:[function(require,module,exports){
+},{"backbone":1,"react":174}],182:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var Backbone = require('backbone');
@@ -34600,9 +34703,13 @@ module.exports = React.createClass({
 				'li',
 				{ key: 'newTrip' },
 				React.createElement(
-					'a',
-					{ href: '#profile' },
-					'Create New Trip'
+					'button',
+					{ id: 'createATripButton' },
+					React.createElement(
+						'a',
+						{ href: '#profile' },
+						'Create New Trip'
+					)
 				)
 			));
 		} else {
@@ -34696,7 +34803,7 @@ module.exports = React.createClass({
 	// }
 });
 
-},{"backbone":1,"bootstrap":4,"react":174}],181:[function(require,module,exports){
+},{"backbone":1,"bootstrap":4,"react":174}],183:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34730,7 +34837,7 @@ module.exports = React.createClass({
 								React.createElement(
 									'h3',
 									null,
-									this.props.picture.get('title')
+									this.props.picture.get('title').toUpperCase()
 								)
 							),
 							React.createElement('br', null)
@@ -34752,36 +34859,37 @@ module.exports = React.createClass({
 				{ id: this.props.picture.id, className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
 				React.createElement(
 					'div',
-					{ className: 'modal-dialog modal-lg' },
+					{ className: 'modal-content pictureModal' },
 					React.createElement(
 						'div',
-						{ className: 'modal-content' },
+						{ className: 'pictureModal', style: { backgroundImage: 'url(' + this.props.picture.get('picture').url() + ')' } },
 						React.createElement(
 							'div',
-							{ className: 'pictureModal', style: { backgroundImage: 'url(' + this.props.picture.get('picture').url() + ')' } },
+							{ className: 'labelWrapper' },
 							React.createElement(
-								'div',
-								{ className: 'labelWrapper' },
+								'label',
+								null,
 								React.createElement(
-									'label',
-									null,
-									React.createElement(
-										'h3',
-										null,
-										this.props.picture.get('title')
-									)
-								),
-								React.createElement('br', null)
-							),
-							React.createElement(
-								'div',
-								{ className: 'labelWrapper captionWrapper' },
-								React.createElement(
-									'label',
-									null,
-									this.props.picture.get('caption')
+									'h3',
+									{ className: 'modalTitle' },
+									this.props.picture.get('title').toUpperCase()
 								)
+							),
+							React.createElement('br', null)
+						),
+						React.createElement(
+							'div',
+							{ className: 'labelWrapper captionWrapper' },
+							React.createElement(
+								'label',
+								{ className: 'modalCap' },
+								this.props.picture.get('caption')
 							)
+						),
+						React.createElement(
+							'a',
+							{ onClick: this.closeModal, className: 'closeModalButton' },
+							React.createElement('span', { className: 'glyphicon glyphicon-remove', 'aria-hidden': 'true' })
 						)
 					)
 				)
@@ -34790,10 +34898,14 @@ module.exports = React.createClass({
 	},
 	onFullPicShow: function onFullPicShow() {
 		$('#' + this.props.picture.id).modal('show');
+	},
+	closeModal: function closeModal() {
+		console.log('#closed');
+		$('#' + this.props.picture.id).modal('hide');
 	}
 });
 
-},{"react":174}],182:[function(require,module,exports){
+},{"react":174}],184:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -34980,13 +35092,14 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/TripModel":190,"./BreadCrumbsBarComponent":176,"./InfoWindowComponent":178,"./TripsNSpotsPortalComponent":185,"backbone":1,"react":174,"react-dom":19}],183:[function(require,module,exports){
+},{"../models/TripModel":192,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":180,"./TripsNSpotsPortalComponent":187,"backbone":1,"react":174,"react-dom":19}],185:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var SpotModel = require('../models/SpotModel');
 var AddMediaComponent = require('./AddMediaComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
+var AddJournalEntryComponent = require('./AddJournalEntryComponent');
 var PictureModel = require('../models/PictureModel');
 var JournalEntryModel = require('../models/JournalEntryModel');
 var Backbone = require('backbone');
@@ -35030,39 +35143,8 @@ module.exports = React.createClass({
 		}, function (err) {
 			console.log(err);
 		});
-		var journalQuery = new Parse.Query(JournalEntryModel);
-		journalQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (entries) {
-			_this.setState({ journalEntries: entries });
-		}, function (err) {
-			console.log(err);
-		});
-		this.dispatcher.on('entryAdded', function (entry) {
-			_this.state.journalEntries.push(entry);
-			_this.setState({ journalEntries: _this.state.journalEntries });
-		});
 	},
 	render: function render() {
-		var entries = [];
-		entries = this.state.journalEntries.map(function (entry) {
-			return React.createElement(
-				'div',
-				{ key: entry.id, className: 'entryWrapper' },
-				React.createElement(
-					'a',
-					{ href: '#', className: 'caption' },
-					React.createElement(
-						'h3',
-						null,
-						entry.get('title').toUpperCase()
-					),
-					React.createElement(
-						'p',
-						null,
-						entry.get('entry').substring(0, 139) + '...'
-					)
-				)
-			);
-		});
 		return React.createElement(
 			'div',
 			null,
@@ -35100,29 +35182,25 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ className: 'row col-xs-offset-1' },
-				React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-10 col-sm-3 ' }),
-				React.createElement(
-					'div',
-					{ className: 'entryContainer col-xs-10 col-sm-7' },
-					entries
-				)
+				{ className: 'row col-xs-offset-2' },
+				React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-9' })
 			),
 			React.createElement(
 				'div',
 				{ className: 'addMediaButtonsWrapper navbar-fixed-bottom' },
 				React.createElement(
 					'button',
-					{ onClick: this.onModalShow, type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					{ onClick: this.onModalShow, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
 				),
 				React.createElement(
 					'button',
-					{ onClick: this.onPicModalShow, type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					{ onClick: this.onPicModalShow, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
 				)
 			),
 			React.createElement(AddMediaComponent, { dispatcher: this.dispatcher, picture: this.state.newPic, onFullPicModalShow: this.onFullPicModalShow, onPicModalShow: this.onPicModalShow, onModalShow: this.onModalShow, spot: this.props.spot }),
+			React.createElement(AddJournalEntryComponent, { dispatcher: this.dispatcher, entry: this.state.newEntry, spot: this.props.spot }),
 			React.createElement(
 				'div',
 				{ ref: 'myModal', id: 'myModal', className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
@@ -35131,7 +35209,7 @@ module.exports = React.createClass({
 					{ className: 'modal-dialog modal-lg' },
 					React.createElement(
 						'div',
-						{ className: 'modal-content' },
+						{ className: 'modal-content inputModal' },
 						React.createElement(
 							'h1',
 							null,
@@ -35157,7 +35235,7 @@ module.exports = React.createClass({
 							{ className: 'modal-footer' },
 							React.createElement(
 								'button',
-								{ type: 'button', className: 'btn btn-default', 'data-dismiss': 'modal' },
+								{ type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
 								'Cancel'
 							),
 							React.createElement(
@@ -35171,13 +35249,13 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ ref: 'picModal', id: 'myModal', className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				{ ref: 'picModal', id: 'myModal', className: 'modal fade bs-example-modal-sm', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'mySmallModalLabel' },
 				React.createElement(
 					'div',
-					{ className: 'modal-dialog modal-lg' },
+					{ className: 'modal-dialog modal-sm' },
 					React.createElement(
 						'div',
-						{ className: 'modal-content' },
+						{ className: 'modal-content inputModal' },
 						React.createElement(
 							'h1',
 							null,
@@ -35187,9 +35265,9 @@ module.exports = React.createClass({
 						React.createElement(
 							'form',
 							null,
-							React.createElement('input', { type: 'file', className: 'fileUpload', ref: 'addPicture' }),
-							React.createElement('input', { type: 'text', ref: 'title', placeholder: 'title' }),
-							React.createElement('input', { type: 'text', ref: 'caption', placeholder: 'caption' })
+							React.createElement('input', { type: 'text', maxLength: '20', className: 'form-control', ref: 'title', placeholder: 'title' }),
+							React.createElement('textarea', { maxLength: '50', className: 'form-control', rows: '2', ref: 'caption', placeholder: 'caption(limit to 50 characters)' }),
+							React.createElement('input', { type: 'file', className: 'fileUpload', ref: 'addPicture' })
 						),
 						React.createElement(
 							'div',
@@ -35197,7 +35275,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'button',
 								{ onClick: this.addPicture, className: 'btn btn-primary' },
-								'UploadPicture'
+								'Upload Photo'
 							)
 						)
 					)
@@ -35223,6 +35301,7 @@ module.exports = React.createClass({
 			spotId: new SpotModel({ objectId: this.props.spot })
 		});
 		newEntry.save().then(function (entry) {
+			_this2.setState({ newEntry: entry });
 			_this2.dispatcher.trigger('entryAdded', entry);
 		});
 		$(this.refs.myModal).modal('hide');
@@ -35256,7 +35335,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/JournalEntryModel":187,"../models/PictureModel":188,"../models/SpotModel":189,"./AddMediaComponent":175,"./BreadCrumbsBarComponent":176,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],184:[function(require,module,exports){
+},{"../models/JournalEntryModel":189,"../models/PictureModel":190,"../models/SpotModel":191,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],186:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35454,7 +35533,7 @@ module.exports = React.createClass({
 
 });
 
-},{"../models/SpotModel":189,"../models/TripModel":190,"./BreadCrumbsBarComponent":176,"./InfoWindowComponent":178,"./TripsNSpotsPortalComponent":185,"react":174,"react-dom":19}],185:[function(require,module,exports){
+},{"../models/SpotModel":191,"../models/TripModel":192,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":180,"./TripsNSpotsPortalComponent":187,"react":174,"react-dom":19}],187:[function(require,module,exports){
 'use strict';
 
 'usestrict';
@@ -35569,7 +35648,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],186:[function(require,module,exports){
+},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],188:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35621,35 +35700,35 @@ Backbone.history.start();
 
 ReactDOM.render(React.createElement(NavComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/HomePageComponent":177,"./components/LoginRegisterComponent":179,"./components/NavComponent":180,"./components/ProfileComponent":182,"./components/SpotComponent":183,"./components/TripComponent":184,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],187:[function(require,module,exports){
+},{"./components/HomePageComponent":179,"./components/LoginRegisterComponent":181,"./components/NavComponent":182,"./components/ProfileComponent":184,"./components/SpotComponent":185,"./components/TripComponent":186,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],189:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'JournalEntryModel'
 });
 
-},{}],188:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'PictureModel'
 });
 
-},{}],189:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'SpotModel'
 });
 
-},{}],190:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'TripModel'
 });
 
-},{}]},{},[186])
+},{}]},{},[188])
 
 
 //# sourceMappingURL=bundle.js.map
