@@ -3,6 +3,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var TripModel = require('../models/TripModel');
 var SpotModel = require('../models/SpotModel');
+var PictureModel = require('../models/PictureModel');
+var PictureModalComponent = require('./PictureModalComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var SpotsPortalComponent = require('./TripsNSpotsPortalComponent');
@@ -13,7 +15,8 @@ module.exports = React.createClass({
 		return {
 			trip: null,
 			spots: [],
-			newSpot: null
+			newSpot: null,
+			pictures: []
 		}
 	},
 	componentWillMount: function() {
@@ -27,10 +30,13 @@ module.exports = React.createClass({
 			}
 		)
 		var spotQuery = new Parse.Query(SpotModel);
+		spotQuery.include('tripId');
 		spotQuery.equalTo('tripId', new TripModel({objectId: this.props.trip})).find().then(
 			(spots) => {
 				spots.forEach((spot) => {
+					//console.log(spot.get('tripId').get('marker').latitude);
 					var myLatLng = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
+					var mapCenter = {lat: spot.get('tripId').get('marker').latitude, lng: spot.get('tripId').get('marker').longitude};
 					var infoContent = '<h4>'+spot.get('spotName')+'</h4><p>'+spot.get('address')+'<br>'+spot.get('spotDateStart').toDateString()+' - '+spot.get('spotDateEnd').toDateString()+'</p><a href=#spot/'+spot.id+'>Post to my Spot</a>';
 					var marker = new google.maps.Marker({
     					position: myLatLng,
@@ -50,9 +56,24 @@ module.exports = React.createClass({
 				console.log(err);
 			}
 		)
+		var pictureQuery = new Parse.Query(PictureModel);
+		pictureQuery.matchesQuery('spotId', spotQuery).find().then(
+			(pictures) => {
+				console.log(pictures);
+				this.setState({pictures: pictures});
+			},
+			(err) => {
+				console.log(err);
+			}
+		)
 	},
 	componentDidMount: function() {
 		var self = this;
+		if(this.state.spots.length > 0) {
+			tripPoint.lat = this.state.spots.get('tripId').get('marker').latitude;
+			tripPoint.lng = this.state.spots.get('tripId').get('marker').longitude;
+		}
+		//var mapCenter = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
 		var mapCenter = {lat: 25, lng: -30};
 
 		var geocoder = new google.maps.Geocoder();
@@ -91,9 +112,16 @@ module.exports = React.createClass({
 	render: function() {
 		var myList = [];
 		var newSpot = [];
+		var pictures = [];
 		myList = this.state.spots.map(function(spot) {
 			return(
 				<a key={spot.id} href={'#spot/'+spot.id} className="list-group-item"><strong>{spot.get('spotName')}</strong><div>{spot.get('spotDateStart').toDateString()} thru {spot.get('spotDateEnd').toDateString()}</div></a>
+			)
+		})
+		pictures = this.state.pictures.map(function(picture) {
+			return(
+				<PictureModalComponent picture={picture} key={picture.id}/>
+
 			)
 		})
 		this.state.newSpot ? newSpot = (<a key={this.state.newSpot.id} href={'#spot/'+this.state.newSpot.id} className="list-group-item"><strong>{this.state.newSpot.get('spotName')}</strong><div>{this.state.newSpot.get('spotDateStart').toDateString()} thru {this.state.newSpot.get('spotDateEnd').toDateString()}</div></a>): newSpot = [];
@@ -108,6 +136,9 @@ module.exports = React.createClass({
 				<SpotsPortalComponent myList={myList} newestListItem={newSpot} listTitle={'Trip Spots'}>
 					<div ref="map"></div>
 				</SpotsPortalComponent>
+				<div className="row col-xs-offset-1 col-sm-offset-2">
+					{pictures}
+				</div>
 			</div>
 		);
 	},
@@ -136,7 +167,7 @@ module.exports = React.createClass({
     					infowindow.open(this.state.map, marker);
   					});
   					this.setState({newSpot: spot});
-
+  					this.props.router.navigate('#spot/'+spot.id, {trigger: true});
 			},
 			(err) => {
 				console.log(err);

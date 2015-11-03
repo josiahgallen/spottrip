@@ -21,12 +21,24 @@ textarea {
   	height: 50%;
   	width: 50%;
 }
-
-	.myWell {
-		background-color: $themeColor;
-		border-radius: none;
+.myWell {
+	border-radius: 0;
+	background-color: $themeColor;
+	font-size: 1.5em;
+}
+.featureButton {
+	background-color: #B2D0FF;
+	margin: 2em 0;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 2em 3em 2em 3em;
+}
+.list-group {
+	.list-group-item {
+		border-radius: 0;
 	}
-
+}
 .navbar-brand {
 	font-family: $titleFont;
 	font-size: 2em;
@@ -34,6 +46,7 @@ textarea {
  h1 {	
  	text-align: center;
  	font-family: $titleFont;
+ 	text-shadow: 2px 2px 2px gray;
  }
  .pageHeader {
  	margin: 3em auto 1em auto;
@@ -41,6 +54,22 @@ textarea {
  .navbar {
  	background-color: $themeColor;
  	z-index: 9999;
+ }
+ .panel {
+ 	.panel-heading {
+ 		background-color: $themeColor;
+ 	}
+ 	.panel-footer {
+ 		background-color: $themeColor;
+ 	}
+ 	border-radius: 0;
+ 	margin-bottom: 0;
+ 	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+ }
+ .panel-heading {
+	background-color: $themeColor;
  }
  .panel-body {
  	height: 30em;
@@ -56,6 +85,11 @@ textarea {
  #tripListWell {
  	height: 50em;
  	overflow: scroll;
+ 	border-radius: 0;
+ 	background-color: $themeColor;
+ 	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
  }
 .floating-panel {
 	position: absolute;
@@ -87,10 +121,7 @@ textarea {
 	.caption {
 		color: #333;
 	}
-	.caption:hover { 
-		text-decoration: none;
-		color: $hoverButtonColor;
-	}
+	transition: all .2s ease-in-out;
 	margin-left: 1em;
 	margin-right: 6.2em;
 	background-color: white;
@@ -100,6 +131,11 @@ textarea {
 	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
 	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
 	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	.caption:hover { 
+		text-decoration: none;
+		color: $hoverButtonColor;
+		transform: scale(1.1);
+	}
 }
 .carouselPic {
 	max-height: 40em;

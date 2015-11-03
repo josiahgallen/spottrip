@@ -1,8 +1,19 @@
 'use strict';
 var React = require('react');
-var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
+var TripModel = require('../models/TripModel');
 
 module.exports = React.createClass({
+	componentWillMount: function() {
+		var query = new Parse.Query(TripModel);
+		query.descending('createdAt').limit(4).find().then (
+			(trips) => {
+				console.log(trips);
+			},
+			(err) => {
+				console.log(err);
+			}
+		)
+	},
 	render: function() {
 		return (
 			<div>
@@ -60,24 +71,14 @@ module.exports = React.createClass({
 				<div className="container-fluid">
 					<div className="row">
 						<div className="well myWell well-md col-xs-8 col-xs-offset-2" id="pageLead">
-							<p className="lead">
-								Lucas ipsum dolor sit amet darth darth moff skywalker ewok 
-								darth jabba gamorrean jawa darth. Sidious mace han sebulba. 
-								Calamari ackbar calamari ventress solo ventress sith jawa c-3p0. 
-								Mothma cade coruscant hutt darth yavin windu lars calamari. Greedo 
-								vader fett jade palpatine. Owen organa calrissian ben han yoda. 
-								Antilles obi-wan mustafar yoda. Naboo solo kit kenobi skywalker darth 
-								kessel secura solo. Leia organa dantooine jawa hutt lars. Mandalore 
-								moff jawa leia obi-wan secura amidala secura windu.
-								Darth chewbacca darth wampa jawa binks maul ben gonk. Solo antilles 
-								darth moff skywalker amidala skywalker ben alderaan. Cade skywalker 
-								jinn fett moff cade gonk. Antilles darth antilles ponda. Hutt lando jar 
-								jinn organa kenobi endor windu. Bespin wookiee darth padmé ventress. 
-								Bothan coruscant moff solo antilles chewbacca cade jawa. Skywalker chewbacca 
-								amidala. Wookiee kashyyyk dantooine solo tatooine amidala. Skywalker 
-								luke gonk binks ventress vader fett. Coruscant darth qui-gonn moff watto alderaan.
+							<p>
+								You love to travel, you love to take pictures of your trip, but afterwards, when you
+								get back to the real world, what happens to those memories?  Most of us
+								save them to a laptop somewhere and they are never looked at or thought of again.
+								With <strong>SpotTrip</strong> you now have a fun and meaningful way to organize your trip!
 							</p>
 						</div>
+						<a className="col-sm-offset-5"href="#register"><button className="featureButton"><h3>Get Started Here</h3></button></a>
 					</div>
 				</div>
 			</div>

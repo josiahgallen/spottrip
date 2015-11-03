@@ -23,9 +23,8 @@ module.exports = React.createClass({
 					</a>
 				</div>
 				<div id={this.props.picture.id} className="modal fade bs-example-modal-lg" tabIndex="-1" role="dialog" ariaLabelledby="myLargeModalLabel">
-						
-						<div className="modal-content pictureModal">
-							<div className="pictureModal" style={{backgroundImage: 'url('+this.props.picture.get('picture').url()+')'}}>
+					<div className="modal-content pictureModal">
+						<div className="pictureModal" style={{backgroundImage: 'url('+this.props.picture.get('picture').url()+')'}}>
 							<div className="labelWrapper">
 								<label><h3 className="modalTitle">{this.props.picture.get('title').toUpperCase()}</h3></label><br/>
 							</div>

@@ -34263,11 +34263,19 @@ module.exports = React.createClass({
 },{"react":174}],179:[function(require,module,exports){
 'use strict';
 var React = require('react');
-var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
+var TripModel = require('../models/TripModel');
 
 module.exports = React.createClass({
 	displayName: 'exports',
 
+	componentWillMount: function componentWillMount() {
+		var query = new Parse.Query(TripModel);
+		query.descending('createdAt').limit(4).find().then(function (trips) {
+			console.log(trips);
+		}, function (err) {
+			console.log(err);
+		});
+	},
 	render: function render() {
 		return React.createElement(
 			'div',
@@ -34392,8 +34400,27 @@ module.exports = React.createClass({
 						{ className: 'well myWell well-md col-xs-8 col-xs-offset-2', id: 'pageLead' },
 						React.createElement(
 							'p',
-							{ className: 'lead' },
-							'Lucas ipsum dolor sit amet darth darth moff skywalker ewok darth jabba gamorrean jawa darth. Sidious mace han sebulba. Calamari ackbar calamari ventress solo ventress sith jawa c-3p0. Mothma cade coruscant hutt darth yavin windu lars calamari. Greedo vader fett jade palpatine. Owen organa calrissian ben han yoda. Antilles obi-wan mustafar yoda. Naboo solo kit kenobi skywalker darth kessel secura solo. Leia organa dantooine jawa hutt lars. Mandalore moff jawa leia obi-wan secura amidala secura windu. Darth chewbacca darth wampa jawa binks maul ben gonk. Solo antilles darth moff skywalker amidala skywalker ben alderaan. Cade skywalker jinn fett moff cade gonk. Antilles darth antilles ponda. Hutt lando jar jinn organa kenobi endor windu. Bespin wookiee darth padmé ventress. Bothan coruscant moff solo antilles chewbacca cade jawa. Skywalker chewbacca amidala. Wookiee kashyyyk dantooine solo tatooine amidala. Skywalker luke gonk binks ventress vader fett. Coruscant darth qui-gonn moff watto alderaan.'
+							null,
+							'You love to travel, you love to take pictures of your trip, but afterwards, when you get back to the real world, what happens to those memories?  Most of us save them to a laptop somewhere and they are never looked at or thought of again. With ',
+							React.createElement(
+								'strong',
+								null,
+								'SpotTrip'
+							),
+							' you now have a fun and meaningful way to organize your trip!'
+						)
+					),
+					React.createElement(
+						'a',
+						{ className: 'col-sm-offset-5', href: '#register' },
+						React.createElement(
+							'button',
+							{ className: 'featureButton' },
+							React.createElement(
+								'h3',
+								null,
+								'Get Started Here'
+							)
 						)
 					)
 				)
@@ -34407,7 +34434,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"./BreadCrumbsBarComponent":177,"react":174}],180:[function(require,module,exports){
+},{"../models/TripModel":192,"react":174}],180:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -35086,6 +35113,7 @@ module.exports = React.createClass({
 				infowindow.open(_this3.state.map, marker);
 			});
 			_this3.setState({ newTrip: trip });
+			_this3.props.router.navigate('#trip/' + trip.id, { trigger: true });
 		}, function (err) {
 			console.log(err);
 		});
@@ -35341,6 +35369,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var TripModel = require('../models/TripModel');
 var SpotModel = require('../models/SpotModel');
+var PictureModel = require('../models/PictureModel');
+var PictureModalComponent = require('./PictureModalComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var SpotsPortalComponent = require('./TripsNSpotsPortalComponent');
@@ -35352,7 +35382,8 @@ module.exports = React.createClass({
 		return {
 			trip: null,
 			spots: [],
-			newSpot: null
+			newSpot: null,
+			pictures: []
 		};
 	},
 	componentWillMount: function componentWillMount() {
@@ -35365,9 +35396,12 @@ module.exports = React.createClass({
 			console.log(err);
 		});
 		var spotQuery = new Parse.Query(SpotModel);
+		spotQuery.include('tripId');
 		spotQuery.equalTo('tripId', new TripModel({ objectId: this.props.trip })).find().then(function (spots) {
 			spots.forEach(function (spot) {
+				//console.log(spot.get('tripId').get('marker').latitude);
 				var myLatLng = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
+				var mapCenter = { lat: spot.get('tripId').get('marker').latitude, lng: spot.get('tripId').get('marker').longitude };
 				var infoContent = '<h4>' + spot.get('spotName') + '</h4><p>' + spot.get('address') + '<br>' + spot.get('spotDateStart').toDateString() + ' - ' + spot.get('spotDateEnd').toDateString() + '</p><a href=#spot/' + spot.id + '>Post to my Spot</a>';
 				var marker = new google.maps.Marker({
 					position: myLatLng,
@@ -35385,11 +35419,23 @@ module.exports = React.createClass({
 		}, function (err) {
 			console.log(err);
 		});
+		var pictureQuery = new Parse.Query(PictureModel);
+		pictureQuery.matchesQuery('spotId', spotQuery).find().then(function (pictures) {
+			console.log(pictures);
+			_this.setState({ pictures: pictures });
+		}, function (err) {
+			console.log(err);
+		});
 	},
 	componentDidMount: function componentDidMount() {
 		var _this2 = this;
 
 		var self = this;
+		if (this.state.spots.length > 0) {
+			tripPoint.lat = this.state.spots.get('tripId').get('marker').latitude;
+			tripPoint.lng = this.state.spots.get('tripId').get('marker').longitude;
+		}
+		//var mapCenter = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
 		var mapCenter = { lat: 25, lng: -30 };
 
 		var geocoder = new google.maps.Geocoder();
@@ -35428,6 +35474,7 @@ module.exports = React.createClass({
 	render: function render() {
 		var myList = [];
 		var newSpot = [];
+		var pictures = [];
 		myList = this.state.spots.map(function (spot) {
 			return React.createElement(
 				'a',
@@ -35445,6 +35492,9 @@ module.exports = React.createClass({
 					spot.get('spotDateEnd').toDateString()
 				)
 			);
+		});
+		pictures = this.state.pictures.map(function (picture) {
+			return React.createElement(PictureModalComponent, { picture: picture, key: picture.id });
 		});
 		this.state.newSpot ? newSpot = React.createElement(
 			'a',
@@ -35497,6 +35547,11 @@ module.exports = React.createClass({
 				SpotsPortalComponent,
 				{ myList: myList, newestListItem: newSpot, listTitle: 'Trip Spots' },
 				React.createElement('div', { ref: 'map' })
+			),
+			React.createElement(
+				'div',
+				{ className: 'row col-xs-offset-1 col-sm-offset-2' },
+				pictures
 			)
 		);
 	},
@@ -35526,6 +35581,7 @@ module.exports = React.createClass({
 				infowindow.open(_this3.state.map, marker);
 			});
 			_this3.setState({ newSpot: spot });
+			_this3.props.router.navigate('#spot/' + spot.id, { trigger: true });
 		}, function (err) {
 			console.log(err);
 		});
@@ -35533,7 +35589,7 @@ module.exports = React.createClass({
 
 });
 
-},{"../models/SpotModel":191,"../models/TripModel":192,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":180,"./TripsNSpotsPortalComponent":187,"react":174,"react-dom":19}],187:[function(require,module,exports){
+},{"../models/PictureModel":190,"../models/SpotModel":191,"../models/TripModel":192,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":180,"./PictureModalComponent":183,"./TripsNSpotsPortalComponent":187,"react":174,"react-dom":19}],187:[function(require,module,exports){
 'use strict';
 
 'usestrict';
