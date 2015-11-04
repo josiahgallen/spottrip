@@ -34264,19 +34264,56 @@ module.exports = React.createClass({
 'use strict';
 var React = require('react');
 var TripModel = require('../models/TripModel');
+var PictureModel = require('../models/PictureModel');
 
 module.exports = React.createClass({
 	displayName: 'exports',
 
+	getInitialState: function getInitialState() {
+		return {
+			trips: []
+		};
+	},
 	componentWillMount: function componentWillMount() {
+		var _this = this;
+
 		var query = new Parse.Query(TripModel);
+		query.include('userId');
 		query.descending('createdAt').limit(4).find().then(function (trips) {
 			console.log(trips);
+			_this.setState({ trips: trips });
 		}, function (err) {
 			console.log(err);
 		});
 	},
 	render: function render() {
+		var trips = [];
+		trips = this.state.trips.map(function (trip) {
+			return React.createElement(
+				'div',
+				{ key: trip.id, className: 'entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-md-10 col-lg-4', style: { backgroundImage: 'url(../images/mapPic.png)' } },
+				React.createElement(
+					'a',
+					{ href: '#trip/' + trip.id, className: 'caption' },
+					React.createElement(
+						'h3',
+						null,
+						trip.get('tripName').toUpperCase()
+					),
+					React.createElement(
+						'p',
+						null,
+						trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
+					),
+					React.createElement(
+						'p',
+						null,
+						'Trip added by user: ',
+						trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+					)
+				)
+			);
+		});
 		return React.createElement(
 			'div',
 			null,
@@ -34307,7 +34344,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'hoverScreen' },
-								React.createElement('img', { src: '../images/badgeWhite.png' })
+								React.createElement('img', { className: 'logo', src: '../images/badgeWhite.png' })
 							)
 						)
 					),
@@ -34321,7 +34358,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'hoverScreen' },
-								React.createElement('img', { src: '../images/badgeWhite.png' })
+								React.createElement('img', { className: 'logo', src: '../images/badgeWhite.png' })
 							)
 						)
 					),
@@ -34335,7 +34372,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'hoverScreen' },
-								React.createElement('img', { src: '../images/badgeWhite.png' })
+								React.createElement('img', { className: 'logo', src: '../images/badgeWhite.png' })
 							)
 						)
 					),
@@ -34349,7 +34386,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'hoverScreen' },
-								React.createElement('img', { src: '../images/badgeWhite.png' })
+								React.createElement('img', { className: 'logo', src: '../images/badgeWhite.png' })
 							)
 						)
 					),
@@ -34363,7 +34400,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'hoverScreen' },
-								React.createElement('img', { src: '../images/badgeWhite.png' })
+								React.createElement('img', { className: 'logo', src: '../images/badgeWhite.png' })
 							)
 						)
 					)
@@ -34399,27 +34436,50 @@ module.exports = React.createClass({
 						'div',
 						{ className: 'well myWell well-md col-xs-8 col-xs-offset-2', id: 'pageLead' },
 						React.createElement(
+							'h2',
+							null,
+							'Welcome to SpotTrip'
+						),
+						React.createElement(
 							'p',
 							null,
-							'You love to travel, you love to take pictures of your trip, but afterwards, when you get back to the real world, what happens to those memories?  Most of us save them to a laptop somewhere and they are never looked at or thought of again. With ',
+							'You love to travel, you love to take pictures of your trip, but afterwards, when you get back to the real world, what happens to those memories?  Most of us save them to a laptop somewhere and they are never looked at again. With ',
 							React.createElement(
 								'strong',
 								null,
 								'SpotTrip'
 							),
 							' you now have a fun and meaningful way to organize your trip!'
-						)
-					),
-					React.createElement(
-						'a',
-						{ className: 'col-sm-offset-5', href: '#register' },
+						),
 						React.createElement(
-							'button',
-							{ className: 'featureButton' },
+							'h3',
+							null,
+							'Check out trips from other SpotTrip Travelers'
+						),
+						React.createElement(
+							'div',
+							null,
+							trips
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'container-fluid' },
+					React.createElement(
+						'div',
+						{ className: 'row' },
+						React.createElement(
+							'a',
+							{ className: 'col-sm-offset-5', href: '#register' },
 							React.createElement(
-								'h3',
-								null,
-								'Get Started Here'
+								'button',
+								{ className: 'featureButton' },
+								React.createElement(
+									'h3',
+									null,
+									'Get Started Here'
+								)
 							)
 						)
 					)
@@ -34434,7 +34494,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/TripModel":192,"react":174}],180:[function(require,module,exports){
+},{"../models/PictureModel":190,"../models/TripModel":192,"react":174}],180:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34514,7 +34574,7 @@ module.exports = React.createClass({
 
 		var loginForm = React.createElement(
 			'div',
-			{ className: 'well well-lg col-xs-12 col-sm-8 col-sm-offset-2' },
+			{ className: 'well well-lg col-xs-12 col-sm-8 col-sm-offset-2 logReg' },
 			React.createElement(
 				'h1',
 				null,
@@ -34546,7 +34606,7 @@ module.exports = React.createClass({
 				),
 				React.createElement(
 					'button',
-					{ type: 'submit', className: 'btn btn-default' },
+					{ type: 'submit', className: 'featureButton register' },
 					React.createElement(
 						'strong',
 						null,
@@ -34557,7 +34617,7 @@ module.exports = React.createClass({
 		);
 		var registerForm = React.createElement(
 			'div',
-			{ className: 'well well-lg col-xs-12 col-sm-8 col-sm-offset-2' },
+			{ className: 'well well-lg col-xs-12 col-sm-8 col-sm-offset-2 logReg' },
 			React.createElement(
 				'h1',
 				null,
@@ -34613,7 +34673,7 @@ module.exports = React.createClass({
 					{ className: 'form-group col-xs-12' },
 					React.createElement(
 						'button',
-						{ type: 'submit', className: 'btn btn-default' },
+						{ type: 'submit', className: 'featureButton register' },
 						React.createElement(
 							'strong',
 							null,
@@ -35263,7 +35323,7 @@ module.exports = React.createClass({
 							{ className: 'modal-footer' },
 							React.createElement(
 								'button',
-								{ type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
+								{ onClick: this.clearInput, type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
 								'Cancel'
 							),
 							React.createElement(
@@ -35319,6 +35379,10 @@ module.exports = React.createClass({
 	},
 	onFullPicModalShow: function onFullPicModalShow(e) {
 		$(this.refs.picture.id);
+	},
+	clearInput: function clearInput() {
+		this.refs.journalTitle.value = '';
+		this.refs.entry.value = '';
 	},
 	addJournalEntry: function addJournalEntry() {
 		var _this2 = this;

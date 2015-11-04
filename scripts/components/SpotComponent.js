@@ -81,7 +81,7 @@ module.exports = React.createClass({
 								</div>
 							</form>
 							 <div className="modal-footer">
-								<button type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
+								<button onClick={this.clearInput} type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
 								<button onClick={this.addJournalEntry} type="button" className="btn btn-primary">Add Entry</button>
 							</div>
 						</div>
@@ -114,6 +114,10 @@ module.exports = React.createClass({
 	},
 	onFullPicModalShow: function(e) {
 		$(this.refs.picture.id)
+	},
+	clearInput: function() {
+		this.refs.journalTitle.value = '';
+		this.refs.entry.value = '';
 	},
 	addJournalEntry: function() {
 		var newEntry = new JournalEntryModel({

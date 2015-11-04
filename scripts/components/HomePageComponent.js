@@ -1,13 +1,21 @@
 'use strict';
 var React = require('react');
 var TripModel = require('../models/TripModel');
+var PictureModel = require('../models/PictureModel');
 
 module.exports = React.createClass({
+	getInitialState: function() {
+		return{
+			trips: []
+	}
+	},
 	componentWillMount: function() {
 		var query = new Parse.Query(TripModel);
+		query.include('userId');
 		query.descending('createdAt').limit(4).find().then (
 			(trips) => {
 				console.log(trips);
+				this.setState({trips: trips});
 			},
 			(err) => {
 				console.log(err);
@@ -15,6 +23,18 @@ module.exports = React.createClass({
 		)
 	},
 	render: function() {
+		var trips = [];
+		trips = this.state.trips.map(function(trip) {
+			return(
+				<div key={trip.id} className="entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-md-10 col-lg-4" style={{backgroundImage: 'url(../images/mapPic.png)'}}>
+					<a href={'#trip/'+trip.id} className="caption">
+						<h3>{trip.get('tripName').toUpperCase()}</h3>
+						<p>{trip.get('tripStart').toDateString()+' - '+trip.get('tripEnd').toDateString()}</p>
+						<p>Trip added by user: {trip.get('userId').get('firstName')+' '+trip.get('userId').get('lastName').substr(0,1)}</p>
+					</a>
+				</div>
+			)
+		})
 		return (
 			<div>
 				<div id="carousel-example-generic" className="carousel slide" data-ride="carousel">
@@ -31,31 +51,31 @@ module.exports = React.createClass({
 					<div className="item active">
 							<img className="carouselPic" src="../images/DSC_0286.jpg"/>
 							<div className="carousel-caption">
-								<div className="hoverScreen"><img src="../images/badgeWhite.png"/></div>
+								<div className="hoverScreen"><img className="logo" src="../images/badgeWhite.png"/></div>
 							</div>
 						</div>
 						<div className="item">
 							<img className="carouselPic" src="../images/DSC_0368.jpg"/>
 							<div className="carousel-caption">
-								<div className="hoverScreen"><img src="../images/badgeWhite.png"/></div>
+								<div className="hoverScreen"><img className="logo" src="../images/badgeWhite.png"/></div>
 							</div>
 						</div>
 						<div className="item">
 							<img className="carouselPic" src="../images/DSC_3050.jpg"/>
 							<div className="carousel-caption">
-								<div className="hoverScreen"><img src="../images/badgeWhite.png"/></div>
+								<div className="hoverScreen"><img className="logo" src="../images/badgeWhite.png"/></div>
 							</div>
 						</div>
 						<div className="item">
 							<img className="carouselPic" src="../images/DSC_3156.jpg"/>
 							<div className="carousel-caption">
-								<div className="hoverScreen"><img src="../images/badgeWhite.png"/></div>
+								<div className="hoverScreen"><img className="logo" src="../images/badgeWhite.png"/></div>
 							</div>
 						</div>
 						<div className="item">
 							<img className="carouselPic" src="../images/DSC_2712.jpg"/>
 							<div className="carousel-caption">
-								<div className="hoverScreen"><img src="../images/badgeWhite.png"/></div>
+								<div className="hoverScreen"><img className="logo" src="../images/badgeWhite.png"/></div>
 							</div>
 						</div>
 					</div> 
@@ -71,14 +91,23 @@ module.exports = React.createClass({
 				<div className="container-fluid">
 					<div className="row">
 						<div className="well myWell well-md col-xs-8 col-xs-offset-2" id="pageLead">
+							<h2>Welcome to SpotTrip</h2>
 							<p>
 								You love to travel, you love to take pictures of your trip, but afterwards, when you
 								get back to the real world, what happens to those memories?  Most of us
-								save them to a laptop somewhere and they are never looked at or thought of again.
+								save them to a laptop somewhere and they are never looked at again.
 								With <strong>SpotTrip</strong> you now have a fun and meaningful way to organize your trip!
 							</p>
+							<h3>Check out trips from other SpotTrip Travelers</h3>
+							<div>
+								{trips}
+							</div>
 						</div>
+					</div>
+					<div className="container-fluid">
+						<div className="row">
 						<a className="col-sm-offset-5"href="#register"><button className="featureButton"><h3>Get Started Here</h3></button></a>
+					</div>
 					</div>
 				</div>
 			</div>

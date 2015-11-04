@@ -22,21 +22,46 @@ textarea {
   	width: 50%;
 }
 .myWell {
+	overflow: hidden;
 	border-radius: 0;
-	background-color: $themeColor;
-	font-size: 1.5em;
+	background-color: white;
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+}
+.logReg {
+	border-radius: 0;
+	margin-top: 5em;
+	padding: 5em;
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 }
 .featureButton {
+	outline: none;
 	background-color: #B2D0FF;
-	margin: 2em 0;
-	color: white;
+	margin: 2em 0 4em 0;
+	color: #1F2D49;
 	border: none;
 	border-radius: 4px;
 	padding: 2em 3em 2em 3em;
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+}
+.featureButton:hover {
+	background-color: #1F2D49;
+	color: #B2D0FF;
+}
+.register {
+	border-radius: 0;
+	font-size: 1.5em;
+	padding: 1em 2em 1em 2em;
 }
 .list-group {
 	.list-group-item {
 		border-radius: 0;
+		padding: 1em;
 	}
 }
 .navbar-brand {
@@ -56,20 +81,11 @@ textarea {
  	z-index: 9999;
  }
  .panel {
- 	.panel-heading {
- 		background-color: $themeColor;
- 	}
- 	.panel-footer {
- 		background-color: $themeColor;
- 	}
  	border-radius: 0;
  	margin-bottom: 0;
- 	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
- }
- .panel-heading {
-	background-color: $themeColor;
+ 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
  }
  .panel-body {
  	height: 30em;
@@ -83,13 +99,12 @@ textarea {
  }
 
  #tripListWell {
- 	height: 50em;
+ 	height: 52.5em;
  	overflow: scroll;
  	border-radius: 0;
- 	background-color: $themeColor;
- 	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+ 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
  }
 .floating-panel {
 	position: absolute;
@@ -113,9 +128,9 @@ textarea {
 	margin-left: 1em;
 	height: 20em;
 	margin-bottom: 2em;
-	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 }
 .entryWrapper {
 	.caption {
@@ -127,10 +142,11 @@ textarea {
 	background-color: white;
 	padding: 1em;
 	width: 29em;
+	cursor: pointer;
 	margin-bottom: 1em;
-	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	.caption:hover { 
 		text-decoration: none;
 		color: $hoverButtonColor;
@@ -152,6 +168,9 @@ textarea {
 	margin-top: 3em;
 	z-index: 10000
 }
+#checkItOut{
+	text-align: center;
+}
 .thumbnail {
 	.labelWrapper {
 		background-color: $captionBackground;
@@ -169,9 +188,9 @@ textarea {
 	width: 29em;
 	background-size: cover;
 	text-align: center;
-	-webkit-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
-	box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 }
 .thumbnail:hover {
 	transform: scale(1.1);
@@ -206,15 +225,15 @@ textarea {
 	margin-top: .5em;
 	padding: .5em;
 	a {
-		color: black;
+		color: #1F2D49;
 	}
 }
 nav{
 #createATripButton:hover {
-	background-color: gray;
+	background-color: #1F2D49;
 	a {
 		text-decoration: none;
-		
+		color: #B2D0FF;
 	}
 }
 }
@@ -303,3 +322,16 @@ nav{
 .closeModalButton:hover {
 	color: $buttonColor;
 }
+.frontPageTripTile{ 
+	//border: 1px solid gray;
+	margin-right: 0;
+	color: white;
+	//text-shadow: 2px 2px 2px black;
+}
+
+
+
+
+
+
+
