@@ -136,7 +136,7 @@ module.exports = React.createClass({
 				<SpotsPortalComponent myList={myList} newestListItem={newSpot} listTitle={'Trip Spots'}>
 					<div ref="map"></div>
 				</SpotsPortalComponent>
-				<div className="row col-xs-offset-1 col-sm-offset-2">
+				<div className="row col-xs-offset-1 col-md-offset-2">
 					{pictures}
 				</div>
 			</div>

@@ -21,10 +21,14 @@ textarea {
   	height: 50%;
   	width: 50%;
 }
+.logo {
+	width: 100%;
+}
 .myWell {
 	overflow: hidden;
 	border-radius: 0;
 	background-color: white;
+	width: 85%;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -48,6 +52,7 @@ textarea {
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	width: 86%;
 }
 .featureButton:hover {
 	background-color: #1F2D49;
@@ -68,6 +73,29 @@ textarea {
 	font-family: $titleFont;
 	font-size: 2em;
 }
+.navbar-default{
+	.navbar-toggle:hover {
+		background-color: #1F2D49;
+		.icon-bar {
+			background-color: #B2D0FF;
+		}
+	}
+	.navbar-toggle {
+		border: none;
+		border-radius: 0;
+		background-color: #B2D0FF;
+		.icon-bar {
+			background-color: #1F2D49;
+		}
+	}
+}
+.dropdown-toggle {
+	text-align: center;
+	.inDropDown {
+		text-align: center;
+	}
+	
+}
  h1 {	
  	text-align: center;
  	font-family: $titleFont;
@@ -82,7 +110,7 @@ textarea {
  }
  .panel {
  	border-radius: 0;
- 	margin-bottom: 0;
+ 	margin-bottom: 1em;
  	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -91,10 +119,10 @@ textarea {
  	height: 30em;
  	padding: 0;
  	>div:nth-child(2) {
- 		height: 100%
+ 		height: 100%;
  	}
  }
- .col-sm-6 {
+ .col-md-6 {
  	padding: 0;
  }
 
@@ -125,7 +153,7 @@ textarea {
 	text-align: center;
 }
 #spotMap {
-	margin-left: 1em;
+	box-sizing: border-box;
 	height: 20em;
 	margin-bottom: 2em;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -152,6 +180,10 @@ textarea {
 		color: $hoverButtonColor;
 		transform: scale(1.1);
 	}
+}
+.blogThumbnail {
+	margin-left: 0;
+	width: 106%;
 }
 .carouselPic {
 	max-height: 40em;
@@ -185,7 +217,7 @@ textarea {
 	padding: 0;
 	border: none;
 	height: 20em;
-	width: 29em;
+	width: 106%;
 	background-size: cover;
 	text-align: center;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -222,6 +254,7 @@ textarea {
 #createATripButton {
 	background-color: #B2D0FF;
 	border: none;
+	width: 100%;
 	margin-top: .5em;
 	padding: .5em;
 	a {
@@ -237,17 +270,16 @@ nav{
 	}
 }
 }
+.addMediaButtonsWrapper {
+	position: fixed;
+	top: 40%;
+	right: 0;
+}
 .hoverButton {
-	position: relative;
-	bottom: 20em;
-	left: 2em;
+	display: block;
 }
 .hoverButton:focus {
 	background-color: gray;
-}
-.bottomButton {
-	bottom: 17.5em;
-	left: -.1em;
 }
 .btn:hover {
 	background-color: $hoverButtonColor;
@@ -260,7 +292,7 @@ nav{
 	z-index: 10500;
 	background-position-x: center;
 	text-align: center;
-	height: 40em;
+	height: 25em;
 	overflow: hidden;
 	background-size: contain;
 	background-repeat: no-repeat;
@@ -271,7 +303,7 @@ nav{
 }
 .modalCap {
 	width: 30em;
-	margin-top: 27em;
+	margin-top: 11.7em;
 	color: white;
 	text-shadow: 2px 2px 2px black;
 }
@@ -323,15 +355,71 @@ nav{
 	color: $buttonColor;
 }
 .frontPageTripTile{ 
-	//border: 1px solid gray;
+	width: 85%;
 	margin-right: 0;
 	color: white;
-	//text-shadow: 2px 2px 2px black;
+	
 }
 
-
-
-
+@media screen and(min-width: 768px){
+	.pictureModal {
+		height: 40em;
+	}
+	.modalCap {
+		margin-top: 27em;
+	}
+	.myWell {
+		width: 75%;
+	}
+	.featureButton{
+		width: 76%;
+	}
+}
+@media screen and(min-width: 892px){
+	.frontPageTripTile {
+		width: 47%;
+	}
+}
+@media screen and(min-width: 992px){
+	.panel {
+		margin-bottom: 0;
+	}
+	.logo {
+		width: 90%;
+	}
+}
+@media screen and(min-width: 1200px){
+	.frontPageTripTile {
+		width: 350px;
+	}
+}
+@media screen and(min-width: 1200px){
+	.logo {
+		width: 85%;
+	}
+	.featureButton{
+		width: 66%;
+	}
+	.myWell {
+		width: 66%;
+	}
+	.thumbnail {
+		width: 29em
+	}
+	.blogThumbnail {
+		width: 29em;
+	}
+}
+@media screen and(min-width: 1407px){
+	.frontPageTripTile {
+		width: 430px;
+	}
+}
+@media screen and(min-width: 1450px){
+	.logo{
+		width: 75%;
+	}
+}
 
 
 

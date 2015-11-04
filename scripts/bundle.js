@@ -34116,7 +34116,7 @@ module.exports = React.createClass({
 		});
 		return React.createElement(
 			'div',
-			{ className: 'row col-xs-offset-2' },
+			{ className: 'row col-xs-offset-1 col-sm-offset-2' },
 			entries
 		);
 	}
@@ -34208,10 +34208,10 @@ module.exports = React.createClass({
 	render: function render() {
 		return React.createElement(
 			'div',
-			{ key: this.props.entry.id },
+			{ key: this.props.entry.id, className: 'col-xs-10 col-sm-10 col-md-10 col-lg-5' },
 			React.createElement(
 				'div',
-				{ className: 'entryWrapper col-xs-10 col-sm-10 col-md-10 col-lg-5' },
+				{ className: 'entryWrapper blogThumbnail' },
 				React.createElement(
 					'a',
 					{ onClick: this.onFullPicShow, className: 'caption' },
@@ -34291,7 +34291,7 @@ module.exports = React.createClass({
 		trips = this.state.trips.map(function (trip) {
 			return React.createElement(
 				'div',
-				{ key: trip.id, className: 'entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-md-10 col-lg-4', style: { backgroundImage: 'url(../images/mapPic.png)' } },
+				{ key: trip.id, className: 'entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-sm-offset-1 col-md-4 col-lg-4', style: { backgroundImage: 'url(../images/mapPic.png)' } },
 				React.createElement(
 					'a',
 					{ href: '#trip/' + trip.id, className: 'caption' },
@@ -34434,7 +34434,7 @@ module.exports = React.createClass({
 					{ className: 'row' },
 					React.createElement(
 						'div',
-						{ className: 'well myWell well-md col-xs-8 col-xs-offset-2', id: 'pageLead' },
+						{ className: 'well myWell well-md col-xs-8 col-xs-offset-1 col-sm-offset-2', id: 'pageLead' },
 						React.createElement(
 							'h2',
 							null,
@@ -34471,7 +34471,7 @@ module.exports = React.createClass({
 						{ className: 'row' },
 						React.createElement(
 							'a',
-							{ className: 'col-sm-offset-5', href: '#register' },
+							{ className: 'col-xs-offset-1 col-sm-offset-2', href: '#register' },
 							React.createElement(
 								'button',
 								{ className: 'featureButton' },
@@ -34769,7 +34769,7 @@ module.exports = React.createClass({
 		if (Parse.User.current()) {
 			dropDownLinks.push(React.createElement(
 				'li',
-				{ key: 'profileLink' },
+				{ className: 'inDropDown', key: 'profileLink' },
 				React.createElement(
 					'a',
 					{ href: '#profile' },
@@ -34779,7 +34779,7 @@ module.exports = React.createClass({
 			dropDownLinks.push(React.createElement('li', { key: 'separator1', role: 'separator', className: 'divider' }));
 			dropDownLinks.push(React.createElement(
 				'li',
-				{ key: 'logoutLink' },
+				{ className: 'inDropDown', key: 'logoutLink' },
 				React.createElement(
 					'a',
 					{ href: '#', onClick: this.logout },
@@ -35270,17 +35270,18 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ className: 'row col-xs-offset-2' },
-				React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-9' })
+				{ className: 'row col-xs-offset-1' },
+				React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-11' })
 			),
 			React.createElement(
 				'div',
-				{ className: 'addMediaButtonsWrapper navbar-fixed-bottom' },
+				{ className: 'addMediaButtonsWrapper' },
 				React.createElement(
 					'button',
 					{ onClick: this.onModalShow, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
 				),
+				React.createElement('br', null),
 				React.createElement(
 					'button',
 					{ onClick: this.onPicModalShow, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
@@ -35614,7 +35615,7 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ className: 'row col-xs-offset-1 col-sm-offset-2' },
+				{ className: 'row col-xs-offset-1 col-md-offset-2' },
 				pictures
 			)
 		);
@@ -35674,7 +35675,7 @@ module.exports = React.createClass({
 			null,
 			React.createElement(
 				'div',
-				{ className: 'panel panel-default col-sm-offset-1 col-sm-6' },
+				{ className: 'panel panel-default col-xs-10 col-xs-offset-1 col-sm-offset-1 col-md-6' },
 				React.createElement(
 					'div',
 					{ className: 'panel-heading ' },
@@ -35751,7 +35752,7 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ id: 'tripListWell', className: 'well well-lg col-sm-offset-1 col-sm-3' },
+				{ id: 'tripListWell', className: 'well well-lg col-xs-10 col-xs-offset-1 col-sm-offset-1 col-md-3' },
 				React.createElement(
 					'h2',
 					null,

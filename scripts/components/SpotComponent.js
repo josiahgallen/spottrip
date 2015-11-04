@@ -57,12 +57,12 @@ module.exports = React.createClass({
 					<li><a href={this.state.spot ? '#trip/'+this.state.spot.get('tripId').id : '#trip'}>My Trip</a></li>
 					<li className="active">My Spot</li>
 				</BreadCrumbsBarComponent>
-				<div className="row col-xs-offset-2">
-					<div id="spotMap" ref="map" className="col-xs-9"></div>
-					
+				<div className="row col-xs-offset-1">
+					<div id="spotMap" ref="map" className="col-xs-11"></div>
 				</div>
-				<div className="addMediaButtonsWrapper navbar-fixed-bottom">
+				<div className="addMediaButtonsWrapper">
 					<button onClick={this.onModalShow} title="Add Journal Entry" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+					<br/>
 					<button onClick={this.onPicModalShow} title="Add Photo" type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-camera" aria-hidden="true"></span></button>
 				</div>
 				<AddMediaComponent dispatcher={this.dispatcher} picture={this.state.newPic} onFullPicModalShow={this.onFullPicModalShow} onPicModalShow={this.onPicModalShow} onModalShow={this.onModalShow} spot={this.props.spot} />

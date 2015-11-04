@@ -33,7 +33,7 @@ module.exports = React.createClass({
 			)
 		});
 		return (
-			<div className="row col-xs-offset-2">
+			<div className="row col-xs-offset-1 col-sm-offset-2">
 						{entries}
 			</div>
 		);

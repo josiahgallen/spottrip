@@ -26,7 +26,7 @@ module.exports = React.createClass({
 		var trips = [];
 		trips = this.state.trips.map(function(trip) {
 			return(
-				<div key={trip.id} className="entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-md-10 col-lg-4" style={{backgroundImage: 'url(../images/mapPic.png)'}}>
+				<div key={trip.id} className="entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-sm-offset-1 col-md-4 col-lg-4" style={{backgroundImage: 'url(../images/mapPic.png)'}}>
 					<a href={'#trip/'+trip.id} className="caption">
 						<h3>{trip.get('tripName').toUpperCase()}</h3>
 						<p>{trip.get('tripStart').toDateString()+' - '+trip.get('tripEnd').toDateString()}</p>
@@ -90,7 +90,7 @@ module.exports = React.createClass({
 				</div>
 				<div className="container-fluid">
 					<div className="row">
-						<div className="well myWell well-md col-xs-8 col-xs-offset-2" id="pageLead">
+						<div className="well myWell well-md col-xs-8 col-xs-offset-1 col-sm-offset-2" id="pageLead">
 							<h2>Welcome to SpotTrip</h2>
 							<p>
 								You love to travel, you love to take pictures of your trip, but afterwards, when you
@@ -106,7 +106,7 @@ module.exports = React.createClass({
 					</div>
 					<div className="container-fluid">
 						<div className="row">
-						<a className="col-sm-offset-5"href="#register"><button className="featureButton"><h3>Get Started Here</h3></button></a>
+						<a className="col-xs-offset-1 col-sm-offset-2"href="#register"><button className="featureButton"><h3>Get Started Here</h3></button></a>
 					</div>
 					</div>
 				</div>

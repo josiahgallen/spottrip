@@ -11,7 +11,7 @@ module.exports = React.createClass({
 		currentURL.indexOf('trip') > -1 ? buttonTitle = 'Add a new Spot' : '';
 		return(
 			<div>
-				<div className="panel panel-default col-sm-offset-1 col-sm-6">
+				<div className="panel panel-default col-xs-10 col-xs-offset-1 col-sm-offset-1 col-md-6">
 					<div className="panel-heading ">
 						<h3 className="panel-title">My Trips</h3>
 					</div>
@@ -44,7 +44,7 @@ module.exports = React.createClass({
 						</ul>
 					</div>
 				</div>
-				<div id="tripListWell" className="well well-lg col-sm-offset-1 col-sm-3">
+				<div id="tripListWell" className="well well-lg col-xs-10 col-xs-offset-1 col-sm-offset-1 col-md-3">
 					<h2>{this.props.listTitle}</h2>
 					<div className="list-group">
 						{this.props.myList}
