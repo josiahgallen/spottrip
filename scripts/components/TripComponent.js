@@ -59,7 +59,6 @@ module.exports = React.createClass({
 		var pictureQuery = new Parse.Query(PictureModel);
 		pictureQuery.matchesQuery('spotId', spotQuery).find().then(
 			(pictures) => {
-				console.log(pictures);
 				this.setState({pictures: pictures});
 			},
 			(err) => {
@@ -136,8 +135,13 @@ module.exports = React.createClass({
 				<SpotsPortalComponent myList={myList} newestListItem={newSpot} listTitle={'Trip Spots'}>
 					<div ref="map"></div>
 				</SpotsPortalComponent>
-				<div className="row col-xs-offset-1 col-md-offset-2">
+				<div className="row">
 					{pictures}
+				</div>
+				<div className="addMediaButtonsWrapper">
+					<button onClick={this.editTrip} title="Add Journal Entry" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+					<br/>
+					<button onClick={this.deleteTrip} title="Add Photo" type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 				</div>
 			</div>
 		);
@@ -173,6 +177,27 @@ module.exports = React.createClass({
 				console.log(err);
 			}
 		);
+	},
+	editTrip: function() {
+		console.log('edit');
+	},
+	deleteTrip: function() {
+		console.log('delete');
+		var answer = prompt('Are you sure you want to permanetly remove this Trip?(enter trip name to confirm)');
+		console.log(answer);
+		console.log(this.state.trip.get('tripName'));
+		if(answer === this.state.trip.get('tripName')) {
+			console.log('destroyed!');
+			this.state.trip.destroy({
+				success: function(object) {
+					console.log(object, ' has been permanetly deleted');
+				},
+				error: function(object) {
+					console.log('error deleting ', object)
+				}
+
+			})
+		}
 	}
 	
 });

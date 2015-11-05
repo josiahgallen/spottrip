@@ -34116,13 +34116,17 @@ module.exports = React.createClass({
 		});
 		return React.createElement(
 			'div',
-			{ className: 'row col-xs-offset-1 col-sm-offset-2' },
-			entries
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'col-xs-offset-1 col-md-offset-2' },
+				entries
+			)
 		);
 	}
 });
 
-},{"../models/JournalEntryModel":189,"../models/SpotModel":191,"./EntryModalComponent":178,"react":174}],176:[function(require,module,exports){
+},{"../models/JournalEntryModel":190,"../models/SpotModel":192,"./EntryModalComponent":179,"react":174}],176:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var PictureModel = require('../models/PictureModel');
@@ -34161,14 +34165,14 @@ module.exports = React.createClass({
 			null,
 			React.createElement(
 				'div',
-				{ className: 'row col-xs-offset-1 col-sm-offset-2' },
+				{ className: 'row' },
 				pictures
 			)
 		);
 	}
 });
 
-},{"../models/PictureModel":190,"../models/SpotModel":191,"./PictureModalComponent":183,"react":174}],177:[function(require,module,exports){
+},{"../models/PictureModel":191,"../models/SpotModel":192,"./PictureModalComponent":184,"react":174}],177:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34196,6 +34200,79 @@ module.exports = React.createClass({
 },{"react":174}],178:[function(require,module,exports){
 'use strict';
 var React = require('react');
+var TripModel = require('../models/TripModel');
+
+module.exports = React.createClass({
+	displayName: 'exports',
+
+	getInitialState: function getInitialState() {
+		return {
+			trips: []
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var _this = this;
+
+		var query = new Parse.Query(TripModel);
+		query.include('userId');
+		query.descending('createdAt').find().then(function (trips) {
+			_this.setState({ trips: trips });
+		}, function (err) {
+			console.log(err);
+		});
+	},
+	render: function render() {
+		var trips = [];
+		trips = this.state.trips.map(function (trip) {
+			return React.createElement(
+				'div',
+				{ key: trip.id, className: 'communityTile', style: { backgroundImage: 'url(../images/mapPic.png)' } },
+				React.createElement(
+					'a',
+					{ href: '#trip/' + trip.id, className: 'caption' },
+					React.createElement(
+						'h3',
+						null,
+						trip.get('tripName').toUpperCase()
+					),
+					React.createElement(
+						'p',
+						null,
+						trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
+					),
+					React.createElement(
+						'p',
+						null,
+						'Trip added by user: ',
+						trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+					)
+				)
+			);
+		});
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'h1',
+				{ className: 'pageHeader' },
+				'Community Page'
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-offset-1 col-xs-10' },
+					trips
+				)
+			)
+		);
+	}
+});
+
+},{"../models/TripModel":193,"react":174}],179:[function(require,module,exports){
+'use strict';
+var React = require('react');
 
 module.exports = React.createClass({
 	displayName: 'exports',
@@ -34208,7 +34285,7 @@ module.exports = React.createClass({
 	render: function render() {
 		return React.createElement(
 			'div',
-			{ key: this.props.entry.id, className: 'col-xs-10 col-sm-10 col-md-10 col-lg-5' },
+			{ key: this.props.entry.id, className: 'col-xs-11 col-md-5' },
 			React.createElement(
 				'div',
 				{ className: 'entryWrapper blogThumbnail' },
@@ -34260,7 +34337,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],179:[function(require,module,exports){
+},{"react":174}],180:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var TripModel = require('../models/TripModel');
@@ -34280,36 +34357,44 @@ module.exports = React.createClass({
 		var query = new Parse.Query(TripModel);
 		query.include('userId');
 		query.descending('createdAt').limit(4).find().then(function (trips) {
-			console.log(trips);
 			_this.setState({ trips: trips });
 		}, function (err) {
 			console.log(err);
 		});
 	},
 	render: function render() {
+		//console.log(Parse.User.current().get('travelStats'));
+		// var stats = [];
+		// stats = Parse.User.current().get('totalTrips');
+		// console.log(stats);
+
 		var trips = [];
 		trips = this.state.trips.map(function (trip) {
 			return React.createElement(
 				'div',
-				{ key: trip.id, className: 'entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-sm-offset-1 col-md-4 col-lg-4', style: { backgroundImage: 'url(../images/mapPic.png)' } },
+				{ key: trip.id, className: 'col-md-6' },
 				React.createElement(
-					'a',
-					{ href: '#trip/' + trip.id, className: 'caption' },
+					'div',
+					{ className: 'entryWrapper frontPageTripTile', style: { backgroundImage: 'url(../images/mapPic.png)' } },
 					React.createElement(
-						'h3',
-						null,
-						trip.get('tripName').toUpperCase()
-					),
-					React.createElement(
-						'p',
-						null,
-						trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
-					),
-					React.createElement(
-						'p',
-						null,
-						'Trip added by user: ',
-						trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+						'a',
+						{ href: '#trip/' + trip.id, className: 'caption' },
+						React.createElement(
+							'h3',
+							null,
+							trip.get('tripName').toUpperCase()
+						),
+						React.createElement(
+							'p',
+							null,
+							trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
+						),
+						React.createElement(
+							'p',
+							null,
+							'Trip added by user: ',
+							trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+						)
 					)
 				)
 			);
@@ -34434,7 +34519,7 @@ module.exports = React.createClass({
 					{ className: 'row' },
 					React.createElement(
 						'div',
-						{ className: 'well myWell well-md col-xs-8 col-xs-offset-1 col-sm-offset-2', id: 'pageLead' },
+						{ className: 'well myWell well-md col-xs-10 col-sm-8 col-xs-offset-1 col-sm-offset-2', id: 'pageLead' },
 						React.createElement(
 							'h2',
 							null,
@@ -34465,23 +34550,11 @@ module.exports = React.createClass({
 				),
 				React.createElement(
 					'div',
-					{ className: 'container-fluid' },
+					{ className: 'anchorWrapper' },
 					React.createElement(
-						'div',
-						{ className: 'row' },
-						React.createElement(
-							'a',
-							{ className: 'col-xs-offset-1 col-sm-offset-2', href: '#register' },
-							React.createElement(
-								'button',
-								{ className: 'featureButton' },
-								React.createElement(
-									'h3',
-									null,
-									'Get Started Here'
-								)
-							)
-						)
+						'a',
+						{ className: 'featureButton', href: '#register' },
+						'Get Started Here'
 					)
 				)
 			)
@@ -34494,7 +34567,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/PictureModel":190,"../models/TripModel":192,"react":174}],180:[function(require,module,exports){
+},{"../models/PictureModel":191,"../models/TripModel":193,"react":174}],181:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34508,21 +34581,22 @@ module.exports = React.createClass({
 			React.createElement(
 				'form',
 				{ onSubmit: this.addLocation },
-				React.createElement('input', { ref: 'tripTitle', type: 'text', placeholder: 'Title' }),
+				React.createElement('br', null),
+				React.createElement('input', { className: 'infoWindowInput', ref: 'tripTitle', type: 'text', placeholder: 'Title' }),
 				React.createElement(
 					'label',
 					null,
 					this.props.address.formatted_address
 				),
 				React.createElement('br', null),
-				React.createElement('input', { ref: 'startDate', type: 'date' }),
+				React.createElement('input', { className: 'infoWindowInput', ref: 'startDate', type: 'date' }),
 				React.createElement(
 					'label',
 					null,
 					'Trip Start '
 				),
 				React.createElement('br', null),
-				React.createElement('input', { ref: 'endDate', type: 'date' }),
+				React.createElement('input', { className: 'infoWindowInput', ref: 'endDate', type: 'date' }),
 				React.createElement(
 					'label',
 					null,
@@ -34531,7 +34605,7 @@ module.exports = React.createClass({
 				React.createElement('br', null),
 				React.createElement(
 					'button',
-					null,
+					{ className: 'infoWindowAddButton' },
 					'Add'
 				)
 			)
@@ -34544,7 +34618,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],181:[function(require,module,exports){
+},{"react":174}],182:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -34740,7 +34814,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"react":174}],182:[function(require,module,exports){
+},{"backbone":1,"react":174}],183:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var Backbone = require('backbone');
@@ -34764,7 +34838,15 @@ module.exports = React.createClass({
 	render: function render() {
 		var currentUser = Parse.User.current();
 		var dropDownLinks = [];
-		var links = [];
+		var links = [React.createElement(
+			'li',
+			{ key: 'community' },
+			React.createElement(
+				'a',
+				{ href: '#community' },
+				'SpotTrip Community'
+			)
+		)];
 
 		if (Parse.User.current()) {
 			dropDownLinks.push(React.createElement(
@@ -34786,7 +34868,7 @@ module.exports = React.createClass({
 					'Logout'
 				)
 			));
-			links.push(React.createElement(
+			links.unshift(React.createElement(
 				'li',
 				{ key: 'newTrip' },
 				React.createElement(
@@ -34882,6 +34964,7 @@ module.exports = React.createClass({
 	logout: function logout(e) {
 		e.preventDefault();
 		Parse.User.logOut();
+		this.forceUpdate();
 		this.props.router.navigate('', { trigger: true });
 		console.log('logout');
 	}
@@ -34890,7 +34973,7 @@ module.exports = React.createClass({
 	// }
 });
 
-},{"backbone":1,"bootstrap":4,"react":174}],183:[function(require,module,exports){
+},{"backbone":1,"bootstrap":4,"react":174}],184:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34905,10 +34988,10 @@ module.exports = React.createClass({
 	render: function render() {
 		return React.createElement(
 			'div',
-			{ key: this.props.picture.id },
+			{ key: this.props.picture.id, className: 'col-xs-offset-1 col-md-offset-2' },
 			React.createElement(
 				'div',
-				{ className: 'col-xs-10 col-sm-10 col-md-10 col-lg-5' },
+				{ className: 'col-xs-11 col-md-5' },
 				React.createElement(
 					'a',
 					{ onClick: this.onFullPicShow },
@@ -34987,12 +35070,11 @@ module.exports = React.createClass({
 		$('#' + this.props.picture.id).modal('show');
 	},
 	closeModal: function closeModal() {
-		console.log('#closed');
 		$('#' + this.props.picture.id).modal('hide');
 	}
 });
 
-},{"react":174}],184:[function(require,module,exports){
+},{"react":174}],185:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35173,6 +35255,7 @@ module.exports = React.createClass({
 				infowindow.open(_this3.state.map, marker);
 			});
 			_this3.setState({ newTrip: trip });
+			Parse.User.current().get('travelStats');
 			_this3.props.router.navigate('#trip/' + trip.id, { trigger: true });
 		}, function (err) {
 			console.log(err);
@@ -35180,7 +35263,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/TripModel":192,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":180,"./TripsNSpotsPortalComponent":187,"backbone":1,"react":174,"react-dom":19}],185:[function(require,module,exports){
+},{"../models/TripModel":193,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":181,"./TripsNSpotsPortalComponent":188,"backbone":1,"react":174,"react-dom":19}],186:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35270,8 +35353,12 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ className: 'row col-xs-offset-1' },
-				React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-11' })
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-offset-1' },
+					React.createElement('div', { id: 'spotMap', ref: 'map', className: 'col-xs-11' })
+				)
 			),
 			React.createElement(
 				'div',
@@ -35428,7 +35515,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/JournalEntryModel":189,"../models/PictureModel":190,"../models/SpotModel":191,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],186:[function(require,module,exports){
+},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],187:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35486,7 +35573,6 @@ module.exports = React.createClass({
 		});
 		var pictureQuery = new Parse.Query(PictureModel);
 		pictureQuery.matchesQuery('spotId', spotQuery).find().then(function (pictures) {
-			console.log(pictures);
 			_this.setState({ pictures: pictures });
 		}, function (err) {
 			console.log(err);
@@ -35615,8 +35701,23 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
-				{ className: 'row col-xs-offset-1 col-md-offset-2' },
+				{ className: 'row' },
 				pictures
+			),
+			React.createElement(
+				'div',
+				{ className: 'addMediaButtonsWrapper' },
+				React.createElement(
+					'button',
+					{ onClick: this.editTrip, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-cog', 'aria-hidden': 'true' })
+				),
+				React.createElement('br', null),
+				React.createElement(
+					'button',
+					{ onClick: this.deleteTrip, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
+				)
 			)
 		);
 	},
@@ -35650,11 +35751,32 @@ module.exports = React.createClass({
 		}, function (err) {
 			console.log(err);
 		});
+	},
+	editTrip: function editTrip() {
+		console.log('edit');
+	},
+	deleteTrip: function deleteTrip() {
+		console.log('delete');
+		var answer = prompt('Are you sure you want to permanetly remove this Trip?(enter trip name to confirm)');
+		console.log(answer);
+		console.log(this.state.trip.get('tripName'));
+		if (answer === this.state.trip.get('tripName')) {
+			console.log('destroyed!');
+			this.state.trip.destroy({
+				success: function success(object) {
+					console.log(object, ' has been permanetly deleted');
+				},
+				error: function error(object) {
+					console.log('error deleting ', object);
+				}
+
+			});
+		}
 	}
 
 });
 
-},{"../models/PictureModel":190,"../models/SpotModel":191,"../models/TripModel":192,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":180,"./PictureModalComponent":183,"./TripsNSpotsPortalComponent":187,"react":174,"react-dom":19}],187:[function(require,module,exports){
+},{"../models/PictureModel":191,"../models/SpotModel":192,"../models/TripModel":193,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":181,"./PictureModalComponent":184,"./TripsNSpotsPortalComponent":188,"react":174,"react-dom":19}],188:[function(require,module,exports){
 'use strict';
 
 'usestrict';
@@ -35666,6 +35788,15 @@ require('bootstrap');
 module.exports = React.createClass({
 	displayName: 'exports',
 
+	getInitialState: function getInitialState() {
+		return {
+			trips: 0
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var trips = Parse.User.current().get('totalTrips');
+		this.setState({ trips: trips });
+	},
 	render: function render() {
 		var currentURL = Backbone.history.getFragment();
 		var buttonTitle = 'Start a new Trip';
@@ -35769,7 +35900,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],188:[function(require,module,exports){
+},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],189:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -35784,6 +35915,7 @@ var LoginRegisterComponent = require('./components/LoginRegisterComponent');
 var ProfileComponent = require('./components/ProfileComponent');
 var TripsComponent = require('./components/TripComponent');
 var SpotComponent = require('./components/SpotComponent');
+var CommunityPageComponent = require('./components/CommunityPageComponent');
 
 Parse.initialize('SReTPFlNUeFnSqrBx33yNVHKDqR0jrY6BB2l6E47', 'XGMgOrJcA5H1O3jc7OwPVyt0n9oo6BXiJsD7Gptm');
 
@@ -35794,7 +35926,8 @@ var Router = Backbone.Router.extend({
 		'register': 'register',
 		'profile': 'profile',
 		'trip/:id': 'trip',
-		'spot/:id': 'spot'
+		'spot/:id': 'spot',
+		'community': 'community'
 	},
 	home: function home() {
 		ReactDOM.render(React.createElement(HomePageComponent, { router: r }), document.getElementById('app'));
@@ -35813,6 +35946,9 @@ var Router = Backbone.Router.extend({
 	},
 	spot: function spot(id) {
 		ReactDOM.render(React.createElement(SpotComponent, { spot: id, router: r }), document.getElementById('app'));
+	},
+	community: function community() {
+		ReactDOM.render(React.createElement(CommunityPageComponent, { router: r }), document.getElementById('app'));
 	}
 });
 
@@ -35821,35 +35957,35 @@ Backbone.history.start();
 
 ReactDOM.render(React.createElement(NavComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/HomePageComponent":179,"./components/LoginRegisterComponent":181,"./components/NavComponent":182,"./components/ProfileComponent":184,"./components/SpotComponent":185,"./components/TripComponent":186,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],189:[function(require,module,exports){
+},{"./components/CommunityPageComponent":178,"./components/HomePageComponent":180,"./components/LoginRegisterComponent":182,"./components/NavComponent":183,"./components/ProfileComponent":185,"./components/SpotComponent":186,"./components/TripComponent":187,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],190:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'JournalEntryModel'
 });
 
-},{}],190:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'PictureModel'
 });
 
-},{}],191:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'SpotModel'
 });
 
-},{}],192:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({
 	className: 'TripModel'
 });
 
-},{}]},{},[188])
+},{}]},{},[189])
 
 
 //# sourceMappingURL=bundle.js.map

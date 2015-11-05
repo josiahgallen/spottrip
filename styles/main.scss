@@ -17,6 +17,26 @@ html, body {
 textarea {
 	resize: none;
 }
+.infoWindowAddButton{
+	background-color: $buttonColor;
+	color: white;
+	border: none;
+	padding: 10px 20px 10px 20px;
+}
+.infoWindowInput {
+	width: 15em;
+	margin-right: 1em;
+	margin-bottom: .5em;
+}
+.communityTile {
+	padding: 1em;
+	margin-bottom: 1em;
+	margin-left: .5em;
+	margin-right: .5em;
+	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+}
 #map {
   	height: 50%;
   	width: 50%;
@@ -28,7 +48,6 @@ textarea {
 	overflow: hidden;
 	border-radius: 0;
 	background-color: white;
-	width: 85%;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -40,28 +59,38 @@ textarea {
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
+	input {
+		border-radius: 0;
+	}
+}
+.anchorWrapper{
+	text-align: center;
 }
 .featureButton {
+	clear: both;
+	font-size: 2em;
+	display: inline-block;
 	outline: none;
 	background-color: #B2D0FF;
 	margin: 2em 0 4em 0;
 	color: #1F2D49;
 	border: none;
 	border-radius: 4px;
-	padding: 2em 3em 2em 3em;
+	padding: 1em 2em 1em 2em;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 	-moz-box-shadow: 5px 5px 2.5px 0px rgba(0,0,0,0.4);
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
-	width: 86%;
 }
 .featureButton:hover {
+	text-decoration: none;
 	background-color: #1F2D49;
 	color: #B2D0FF;
 }
 .register {
 	border-radius: 0;
 	font-size: 1.5em;
-	padding: 1em 2em 1em 2em;
+	padding: .5em 2em .5em 2em;
+	margin-bottom: 0;
 }
 .list-group {
 	.list-group-item {
@@ -165,11 +194,8 @@ textarea {
 		color: #333;
 	}
 	transition: all .2s ease-in-out;
-	margin-left: 1em;
-	margin-right: 6.2em;
 	background-color: white;
 	padding: 1em;
-	width: 29em;
 	cursor: pointer;
 	margin-bottom: 1em;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -180,10 +206,6 @@ textarea {
 		color: $hoverButtonColor;
 		transform: scale(1.1);
 	}
-}
-.blogThumbnail {
-	margin-left: 0;
-	width: 106%;
 }
 .carouselPic {
 	max-height: 40em;
@@ -217,7 +239,7 @@ textarea {
 	padding: 0;
 	border: none;
 	height: 20em;
-	width: 106%;
+	//width: 106%;
 	background-size: cover;
 	text-align: center;
 	-webkit-box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
@@ -355,10 +377,8 @@ nav{
 	color: $buttonColor;
 }
 .frontPageTripTile{ 
-	width: 85%;
-	margin-right: 0;
-	color: white;
-	
+	margin-left: .5em;
+	margin-right: .5em;
 }
 
 @media screen and(min-width: 768px){
@@ -367,17 +387,6 @@ nav{
 	}
 	.modalCap {
 		margin-top: 27em;
-	}
-	.myWell {
-		width: 75%;
-	}
-	.featureButton{
-		width: 76%;
-	}
-}
-@media screen and(min-width: 892px){
-	.frontPageTripTile {
-		width: 47%;
 	}
 }
 @media screen and(min-width: 992px){
@@ -389,30 +398,8 @@ nav{
 	}
 }
 @media screen and(min-width: 1200px){
-	.frontPageTripTile {
-		width: 350px;
-	}
-}
-@media screen and(min-width: 1200px){
 	.logo {
 		width: 85%;
-	}
-	.featureButton{
-		width: 66%;
-	}
-	.myWell {
-		width: 66%;
-	}
-	.thumbnail {
-		width: 29em
-	}
-	.blogThumbnail {
-		width: 29em;
-	}
-}
-@media screen and(min-width: 1407px){
-	.frontPageTripTile {
-		width: 430px;
 	}
 }
 @media screen and(min-width: 1450px){
@@ -420,6 +407,3 @@ nav{
 		width: 75%;
 	}
 }
-
-
-

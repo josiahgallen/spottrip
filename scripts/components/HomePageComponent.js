@@ -7,14 +7,13 @@ module.exports = React.createClass({
 	getInitialState: function() {
 		return{
 			trips: []
-	}
+		}
 	},
 	componentWillMount: function() {
 		var query = new Parse.Query(TripModel);
 		query.include('userId');
 		query.descending('createdAt').limit(4).find().then (
 			(trips) => {
-				console.log(trips);
 				this.setState({trips: trips});
 			},
 			(err) => {
@@ -23,15 +22,23 @@ module.exports = React.createClass({
 		)
 	},
 	render: function() {
+		//console.log(Parse.User.current().get('travelStats'));
+		// var stats = [];
+		// stats = Parse.User.current().get('totalTrips');
+		// console.log(stats);
+
+		
 		var trips = [];
 		trips = this.state.trips.map(function(trip) {
 			return(
-				<div key={trip.id} className="entryWrapper frontPageTripTile col-xs-10 col-sm-10 col-sm-offset-1 col-md-4 col-lg-4" style={{backgroundImage: 'url(../images/mapPic.png)'}}>
-					<a href={'#trip/'+trip.id} className="caption">
-						<h3>{trip.get('tripName').toUpperCase()}</h3>
-						<p>{trip.get('tripStart').toDateString()+' - '+trip.get('tripEnd').toDateString()}</p>
-						<p>Trip added by user: {trip.get('userId').get('firstName')+' '+trip.get('userId').get('lastName').substr(0,1)}</p>
-					</a>
+				<div key={trip.id} className="col-md-6">
+					<div className="entryWrapper frontPageTripTile" style={{backgroundImage: 'url(../images/mapPic.png)'}}>
+						<a href={'#trip/'+trip.id} className="caption">
+							<h3>{trip.get('tripName').toUpperCase()}</h3>
+							<p>{trip.get('tripStart').toDateString()+' - '+trip.get('tripEnd').toDateString()}</p>
+							<p>Trip added by user: {trip.get('userId').get('firstName')+' '+trip.get('userId').get('lastName').substr(0,1)}</p>
+						</a>
+					</div>
 				</div>
 			)
 		})
@@ -90,7 +97,7 @@ module.exports = React.createClass({
 				</div>
 				<div className="container-fluid">
 					<div className="row">
-						<div className="well myWell well-md col-xs-8 col-xs-offset-1 col-sm-offset-2" id="pageLead">
+						<div className="well myWell well-md col-xs-10 col-sm-8 col-xs-offset-1 col-sm-offset-2" id="pageLead">
 							<h2>Welcome to SpotTrip</h2>
 							<p>
 								You love to travel, you love to take pictures of your trip, but afterwards, when you
@@ -104,10 +111,8 @@ module.exports = React.createClass({
 							</div>
 						</div>
 					</div>
-					<div className="container-fluid">
-						<div className="row">
-						<a className="col-xs-offset-1 col-sm-offset-2"href="#register"><button className="featureButton"><h3>Get Started Here</h3></button></a>
-					</div>
+					<div className="anchorWrapper">
+						<a className="featureButton"href="#register">Get Started Here</a>
 					</div>
 				</div>
 			</div>

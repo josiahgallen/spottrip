@@ -5,6 +5,15 @@ var Backbone = require('backbone');
 require('bootstrap');
 
 module.exports = React.createClass({
+	getInitialState: function() {
+		return{
+			trips: 0
+		}
+	},
+	componentWillMount: function() {
+		var trips = Parse.User.current().get('totalTrips');
+		this.setState({trips: trips});
+	},
 	render: function() {
 		var currentURL = Backbone.history.getFragment();
 		var buttonTitle = 'Start a new Trip';

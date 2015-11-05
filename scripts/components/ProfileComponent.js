@@ -129,6 +129,7 @@ module.exports = React.createClass({
 						infowindow.open(this.state.map, marker);
 					});
 					this.setState({newTrip: trip});
+					Parse.User.current().get('travelStats')
 					this.props.router.navigate('#trip/'+trip.id, {trigger: true});
 			},
 			(err) => {
