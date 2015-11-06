@@ -34844,7 +34844,7 @@ module.exports = React.createClass({
 			React.createElement(
 				'a',
 				{ href: '#community' },
-				'SpotTrip Community'
+				'Community'
 			)
 		)];
 
@@ -34968,9 +34968,6 @@ module.exports = React.createClass({
 		this.props.router.navigate('', { trigger: true });
 		console.log('logout');
 	}
-	// backToTrip: function(id) {
-	// 	this.props.router.navigate('trip/'+id, {trigger: true})
-	// }
 });
 
 },{"backbone":1,"bootstrap":4,"react":174}],184:[function(require,module,exports){
@@ -35268,6 +35265,7 @@ module.exports = React.createClass({
 var React = require('react');
 var ReactDOM = require('react-dom');
 var SpotModel = require('../models/SpotModel');
+var TripModel = require('../models/TripModel');
 var AddMediaComponent = require('./AddMediaComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var AddJournalEntryComponent = require('./AddJournalEntryComponent');
@@ -35478,7 +35476,8 @@ module.exports = React.createClass({
 		var newEntry = new JournalEntryModel({
 			title: this.refs.journalTitle.value,
 			entry: this.refs.entry.value,
-			spotId: new SpotModel({ objectId: this.props.spot })
+			spotId: new SpotModel({ objectId: this.props.spot }),
+			tripId: new TripModel({ objectId: this.state.spot.get('tripId').id })
 		});
 		newEntry.save().then(function (entry) {
 			_this2.setState({ newEntry: entry });
@@ -35500,7 +35499,8 @@ module.exports = React.createClass({
 		var pic = new PictureModel({
 			spotId: new SpotModel({ objectId: this.props.spot }),
 			title: this.refs.title.value,
-			caption: this.refs.caption.value
+			caption: this.refs.caption.value,
+			tripId: new TripModel({ objectId: this.state.spot.get('tripId').id })
 		});
 		pic.set('picture', parseFile);
 		pic.save().then(function (pic) {
@@ -35515,14 +35515,16 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],187:[function(require,module,exports){
+},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"../models/TripModel":193,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],187:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var TripModel = require('../models/TripModel');
 var SpotModel = require('../models/SpotModel');
 var PictureModel = require('../models/PictureModel');
+var JournalEntryModel = require('../models/JournalEntryModel');
 var PictureModalComponent = require('./PictureModalComponent');
+var EntryModalComponent = require('./EntryModalComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var SpotsPortalComponent = require('./TripsNSpotsPortalComponent');
@@ -35535,12 +35537,16 @@ module.exports = React.createClass({
 			trip: null,
 			spots: [],
 			newSpot: null,
-			pictures: []
+			pictures: [],
+			entries: []
 		};
 	},
 	componentWillMount: function componentWillMount() {
 		var _this = this;
 
+		$('#myModal').on('shown.bs.modal', function () {
+			$('#myInput').show();
+		});
 		var query = new Parse.Query(TripModel);
 		query.get(this.props.trip).then(function (trip) {
 			_this.setState({ trip: trip });
@@ -35551,7 +35557,6 @@ module.exports = React.createClass({
 		spotQuery.include('tripId');
 		spotQuery.equalTo('tripId', new TripModel({ objectId: this.props.trip })).find().then(function (spots) {
 			spots.forEach(function (spot) {
-				//console.log(spot.get('tripId').get('marker').latitude);
 				var myLatLng = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
 				var mapCenter = { lat: spot.get('tripId').get('marker').latitude, lng: spot.get('tripId').get('marker').longitude };
 				var infoContent = '<h4>' + spot.get('spotName') + '</h4><p>' + spot.get('address') + '<br>' + spot.get('spotDateStart').toDateString() + ' - ' + spot.get('spotDateEnd').toDateString() + '</p><a href=#spot/' + spot.id + '>Post to my Spot</a>';
@@ -35577,6 +35582,12 @@ module.exports = React.createClass({
 		}, function (err) {
 			console.log(err);
 		});
+		var journalQuery = new Parse.Query(JournalEntryModel);
+		journalQuery.equalTo('tripId', new TripModel({ objectId: this.props.trip })).find().then(function (entries) {
+			_this.setState({ entries: entries });
+		}, function (err) {
+			console.log(err);
+		});
 	},
 	componentDidMount: function componentDidMount() {
 		var _this2 = this;
@@ -35586,7 +35597,6 @@ module.exports = React.createClass({
 			tripPoint.lat = this.state.spots.get('tripId').get('marker').latitude;
 			tripPoint.lng = this.state.spots.get('tripId').get('marker').longitude;
 		}
-		//var mapCenter = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
 		var mapCenter = { lat: 25, lng: -30 };
 
 		var geocoder = new google.maps.Geocoder();
@@ -35626,6 +35636,7 @@ module.exports = React.createClass({
 		var myList = [];
 		var newSpot = [];
 		var pictures = [];
+		var entries = [];
 		myList = this.state.spots.map(function (spot) {
 			return React.createElement(
 				'a',
@@ -35646,6 +35657,9 @@ module.exports = React.createClass({
 		});
 		pictures = this.state.pictures.map(function (picture) {
 			return React.createElement(PictureModalComponent, { picture: picture, key: picture.id });
+		});
+		entries = this.state.entries.map(function (entry) {
+			return React.createElement(EntryModalComponent, { entry: entry, key: entry.id });
 		});
 		this.state.newSpot ? newSpot = React.createElement(
 			'a',
@@ -35706,17 +35720,124 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-offset-1 col-md-offset-2' },
+					entries
+				)
+			),
+			React.createElement(
+				'div',
 				{ className: 'addMediaButtonsWrapper' },
 				React.createElement(
 					'button',
-					{ onClick: this.editTrip, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					{ onClick: this.editTrip, title: 'Edit Trip', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-cog', 'aria-hidden': 'true' })
 				),
 				React.createElement('br', null),
 				React.createElement(
 					'button',
-					{ onClick: this.deleteTrip, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					{ onClick: this.deleteModal, title: 'Delete Trip', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
+				)
+			),
+			React.createElement(
+				'div',
+				{ id: 'modaly', className: 'modal modaly fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content inputModal' },
+						React.createElement(
+							'h1',
+							null,
+							'Edit'
+						),
+						React.createElement('hr', null),
+						React.createElement(
+							'form',
+							null,
+							React.createElement(
+								'div',
+								{ className: 'form-group xs-col-6' },
+								React.createElement('input', { type: 'text', ref: 'journalTitle', className: 'form-control', id: 'blogTitle', placeholder: 'Title' })
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement('textarea', { ref: 'entry', className: 'form-control', rows: '6', placeholder: 'Trip Memories Go Here!' })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'modal-footer' },
+							React.createElement(
+								'button',
+								{ onClick: this.closeModal, type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
+								'Cancel'
+							),
+							React.createElement(
+								'button',
+								{ type: 'button', className: 'btn btn-primary' },
+								'Save'
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ id: 'modelier', className: 'modal modaly fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content inputModal' },
+						React.createElement(
+							'h1',
+							null,
+							'Remove Trip'
+						),
+						React.createElement('hr', null),
+						React.createElement(
+							'div',
+							{ className: 'alert alert-danger', role: 'alert' },
+							React.createElement(
+								'p',
+								null,
+								'Warning all Spots, Pictures, and Journals associated with this Trip will be permanetly removed! (enter trip name to confirm)'
+							),
+							React.createElement('br', null),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'exampleInputEmail1' },
+									'Trip Name'
+								),
+								React.createElement('input', { type: 'text', ref: 'deleteConfirm', className: 'form-control', id: 'exampleInputEmail1' })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'modal-footer' },
+							React.createElement(
+								'button',
+								{ onClick: this.closeOtherModal, type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
+								'Cancel'
+							),
+							React.createElement(
+								'button',
+								{ onClick: this.deleteTrip, className: 'btn btn-primary' },
+								'Destroy Forever :('
+							)
+						)
+					)
 				)
 			)
 		);
@@ -35753,15 +35874,39 @@ module.exports = React.createClass({
 		});
 	},
 	editTrip: function editTrip() {
-		console.log('edit');
+		$('#modaly').modal('show');
+	},
+	deleteModal: function deleteModal() {
+		$('#modelier').modal('show');
 	},
 	deleteTrip: function deleteTrip() {
-		console.log('delete');
-		var answer = prompt('Are you sure you want to permanetly remove this Trip?(enter trip name to confirm)');
-		console.log(answer);
-		console.log(this.state.trip.get('tripName'));
+		console.log('start delete');
+		var answer = this.refs.deleteConfirm.value;
 		if (answer === this.state.trip.get('tripName')) {
-			console.log('destroyed!');
+			Parse.Object.destroyAll(this.state.entries, {
+				success: function success(entry) {
+					console.log('all journal entries destroyed');
+				},
+				error: function error(err) {
+					console.log(err);
+				}
+			});
+			Parse.Object.destroyAll(this.state.pictures, {
+				success: function success(picture) {
+					console.log('all pictures destroyed');
+				},
+				error: function error(err) {
+					console.log(err);
+				}
+			});
+			Parse.Object.destroyAll(this.state.spots, {
+				success: function success(spot) {
+					console.log('all spots destroyed');
+				},
+				error: function error(err) {
+					console.log(err);
+				}
+			});
 			this.state.trip.destroy({
 				success: function success(object) {
 					console.log(object, ' has been permanetly deleted');
@@ -35769,14 +35914,22 @@ module.exports = React.createClass({
 				error: function error(object) {
 					console.log('error deleting ', object);
 				}
-
 			});
+			$('#modelier').modal('hide');
+			this.props.router.navigate('#profile', { trigger: true });
+			//this.props.router.navigate('#profile', {trigger: true});
 		}
+	},
+	closeModal: function closeModal() {
+		$('#modaly').modal('hide');
+	},
+	closeOtherModal: function closeOtherModal() {
+		$('#modelier').modal('hide');
 	}
 
 });
 
-},{"../models/PictureModel":191,"../models/SpotModel":192,"../models/TripModel":193,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":181,"./PictureModalComponent":184,"./TripsNSpotsPortalComponent":188,"react":174,"react-dom":19}],188:[function(require,module,exports){
+},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"../models/TripModel":193,"./BreadCrumbsBarComponent":177,"./EntryModalComponent":179,"./InfoWindowComponent":181,"./PictureModalComponent":184,"./TripsNSpotsPortalComponent":188,"react":174,"react-dom":19}],188:[function(require,module,exports){
 'use strict';
 
 'usestrict';

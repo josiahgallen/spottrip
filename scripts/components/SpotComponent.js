@@ -2,6 +2,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var SpotModel = require('../models/SpotModel');
+var TripModel = require('../models/TripModel');
 var AddMediaComponent = require('./AddMediaComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var AddJournalEntryComponent = require('./AddJournalEntryComponent');
@@ -125,7 +126,8 @@ module.exports = React.createClass({
 		var newEntry = new JournalEntryModel({
 			title: this.refs.journalTitle.value,
 			entry: this.refs.entry.value,
-			spotId: new SpotModel({objectId:this.props.spot})
+			spotId: new SpotModel({objectId:this.props.spot}),
+			tripId : new TripModel({objectId:this.state.spot.get('tripId').id})
 		})
 		newEntry.save().then(
 			(entry) => {
@@ -147,7 +149,8 @@ module.exports = React.createClass({
 		var pic = new PictureModel({
 			spotId: new SpotModel({objectId:this.props.spot}),
 			title: this.refs.title.value,
-			caption: this.refs.caption.value
+			caption: this.refs.caption.value,
+			tripId : new TripModel({objectId:this.state.spot.get('tripId').id})
 		});
 		pic.set('picture', parseFile);
 		pic.save().then((pic) => {
