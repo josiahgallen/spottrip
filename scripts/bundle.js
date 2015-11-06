@@ -34100,6 +34100,7 @@ module.exports = React.createClass({
 
 		var journalQuery = new Parse.Query(JournalEntryModel);
 		journalQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (entries) {
+			_this.props.onEntryQuery(entries);
 			_this.setState({ journalEntries: entries });
 		}, function (err) {
 			console.log(err);
@@ -34150,6 +34151,7 @@ module.exports = React.createClass({
 		});
 		var picQuery = new Parse.Query(PictureModel);
 		picQuery.equalTo('spotId', new SpotModel({ objectId: this.props.spot })).find().then(function (pictures) {
+			_this.props.onPictureQuery(pictures);
 			_this.setState({ pictures: pictures });
 		}, function (err) {
 			console.log(err);
@@ -35102,7 +35104,8 @@ module.exports = React.createClass({
 				var marker = new google.maps.Marker({
 					position: myLatLng,
 					map: _this.state.map,
-					title: marker.get('tripName')
+					title: marker.get('tripName'),
+					animation: google.maps.Animation.DROP
 				});
 				var infowindow = new google.maps.InfoWindow({
 					content: tripName
@@ -35281,7 +35284,8 @@ module.exports = React.createClass({
 		return {
 			spot: null,
 			newPic: null,
-			journalEntries: []
+			entries: [],
+			pictures: []
 		};
 	},
 	componentWillMount: function componentWillMount() {
@@ -35306,7 +35310,8 @@ module.exports = React.createClass({
 			var marker = new google.maps.Marker({
 				map: _this.map,
 				position: popUp,
-				title: spot.get('spotName')
+				title: spot.get('spotName'),
+				animation: google.maps.Animation.DROP
 			});
 			_this.setState({ map: _this.map, spot: spot });
 		}, function (err) {
@@ -35371,10 +35376,22 @@ module.exports = React.createClass({
 					'button',
 					{ onClick: this.onPicModalShow, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
+				),
+				React.createElement('br', null),
+				React.createElement(
+					'button',
+					{ onClick: this.editTrip, title: 'Edit Spot', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-cog', 'aria-hidden': 'true' })
+				),
+				React.createElement('br', null),
+				React.createElement(
+					'button',
+					{ onClick: this.deleteModal, title: 'Delete Spot', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
 				)
 			),
-			React.createElement(AddMediaComponent, { dispatcher: this.dispatcher, picture: this.state.newPic, onFullPicModalShow: this.onFullPicModalShow, onPicModalShow: this.onPicModalShow, onModalShow: this.onModalShow, spot: this.props.spot }),
-			React.createElement(AddJournalEntryComponent, { dispatcher: this.dispatcher, entry: this.state.newEntry, spot: this.props.spot }),
+			React.createElement(AddMediaComponent, { dispatcher: this.dispatcher, picture: this.state.newPic, spot: this.props.spot, onPictureQuery: this.onPictureQuery }),
+			React.createElement(AddJournalEntryComponent, { dispatcher: this.dispatcher, entry: this.state.newEntry, spot: this.props.spot, onEntryQuery: this.onEntryQuery }),
 			React.createElement(
 				'div',
 				{ ref: 'myModal', id: 'myModal', className: 'modal fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
@@ -35454,8 +35471,112 @@ module.exports = React.createClass({
 						)
 					)
 				)
+			),
+			React.createElement(
+				'div',
+				{ id: 'modaly', className: 'modal modaly fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content inputModal' },
+						React.createElement(
+							'h1',
+							null,
+							'Edit'
+						),
+						React.createElement('hr', null),
+						React.createElement(
+							'form',
+							null,
+							React.createElement(
+								'div',
+								{ className: 'form-group xs-col-6' },
+								React.createElement('input', { type: 'text', ref: 'edit', className: 'form-control', id: 'blogTitle', placeholder: 'Title' })
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement('textarea', { ref: 'edit2', className: 'form-control', rows: '6', placeholder: 'Trip Memories Go Here!' })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'modal-footer' },
+							React.createElement(
+								'button',
+								{ onClick: this.closeModal, type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
+								'Cancel'
+							),
+							React.createElement(
+								'button',
+								{ type: 'button', className: 'btn btn-primary' },
+								'Save'
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ id: 'modelier', className: 'modal modaly fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content inputModal' },
+						React.createElement(
+							'h1',
+							null,
+							'Remove Trip'
+						),
+						React.createElement('hr', null),
+						React.createElement(
+							'div',
+							{ className: 'alert alert-danger', role: 'alert' },
+							React.createElement(
+								'p',
+								null,
+								'Warning all Pictures, and Journals associated with this Spot will be permanetly removed! (enter spot name to confirm)'
+							),
+							React.createElement('br', null),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'exampleInputEmail1' },
+									'Spot Name'
+								),
+								React.createElement('input', { type: 'text', ref: 'deleteConfirm', className: 'form-control', id: 'exampleInputEmail1' })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'modal-footer' },
+							React.createElement(
+								'button',
+								{ onClick: this.closeOtherModal, type: 'button', className: 'btn btn-default cancel', 'data-dismiss': 'modal' },
+								'Cancel'
+							),
+							React.createElement(
+								'button',
+								{ onClick: this.deleteTrip, className: 'btn btn-primary' },
+								'Destroy Forever :('
+							)
+						)
+					)
+				)
 			)
 		);
+	},
+	onPictureQuery: function onPictureQuery(pictures) {
+		this.setState({ pictures: pictures });
+	},
+	onEntryQuery: function onEntryQuery(entries) {
+		this.setState({ entries: entries });
 	},
 	onModalShow: function onModalShow() {
 		$(this.refs.myModal).modal('show');
@@ -35512,6 +35633,50 @@ module.exports = React.createClass({
 		this.refs.addPicture.value = '';
 		this.refs.caption.value = '';
 		this.refs.title.value = '';
+	},
+	editTrip: function editTrip() {
+		$('#modaly').modal('show');
+	},
+	deleteModal: function deleteModal() {
+		$('#modelier').modal('show');
+	},
+	deleteTrip: function deleteTrip() {
+		console.log('start delete');
+		var answer = this.refs.deleteConfirm.value;
+		if (answer === this.state.spot.get('spotName')) {
+			Parse.Object.destroyAll(this.state.entries, {
+				success: function success(entry) {
+					console.log('all journal entries destroyed');
+				},
+				error: function error(err) {
+					console.log(err);
+				}
+			});
+			Parse.Object.destroyAll(this.state.pictures, {
+				success: function success(picture) {
+					console.log('all pictures destroyed');
+				},
+				error: function error(err) {
+					console.log(err);
+				}
+			});
+			this.state.spot.destroy({
+				success: function success(object) {
+					console.log(object, ' has been permanetly deleted');
+				},
+				error: function error(object) {
+					console.log('error deleting ', object);
+				}
+			});
+			$('#modelier').modal('hide');
+			this.props.router.navigate('#profile', { trigger: true });
+		}
+	},
+	closeModal: function closeModal() {
+		$('#modaly').modal('hide');
+	},
+	closeOtherModal: function closeOtherModal() {
+		$('#modelier').modal('hide');
 	}
 });
 
@@ -35563,7 +35728,8 @@ module.exports = React.createClass({
 				var marker = new google.maps.Marker({
 					position: myLatLng,
 					map: _this.state.map,
-					title: spot.get('spotName')
+					title: spot.get('spotName'),
+					animation: google.maps.Animation.DROP
 				});
 				var infowindow = new google.maps.InfoWindow({
 					content: infoContent
@@ -35834,7 +36000,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'button',
 								{ onClick: this.deleteTrip, className: 'btn btn-primary' },
-								'Destroy Forever :('
+								'Destroy Forever'
 							)
 						)
 					)
@@ -35917,7 +36083,6 @@ module.exports = React.createClass({
 			});
 			$('#modelier').modal('hide');
 			this.props.router.navigate('#profile', { trigger: true });
-			//this.props.router.navigate('#profile', {trigger: true});
 		}
 	},
 	closeModal: function closeModal() {

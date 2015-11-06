@@ -16,7 +16,8 @@ module.exports = React.createClass({
 		return {
 			spot: null,
 			newPic: null,
-			journalEntries: []
+			entries: [],
+			pictures: []
 		}
 	},
 	componentWillMount: function() {
@@ -40,7 +41,8 @@ module.exports = React.createClass({
 				var marker = new google.maps.Marker({
 						map: this.map,
 						position: popUp,
-						title: spot.get('spotName')
+						title: spot.get('spotName'),
+						animation: google.maps.Animation.DROP
 				});
 				this.setState({map: this.map, spot: spot});
 			},
@@ -67,9 +69,15 @@ module.exports = React.createClass({
 					<button onClick={this.onModalShow} title="Add Journal Entry" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
 					<br/>
 					<button onClick={this.onPicModalShow} title="Add Photo" type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-camera" aria-hidden="true"></span></button>
+					<br/>
+					<button onClick={this.editTrip} title="Edit Spot" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+					<br/>
+					<button onClick={this.deleteModal} title="Delete Spot" type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 				</div>
-				<AddMediaComponent dispatcher={this.dispatcher} picture={this.state.newPic} onFullPicModalShow={this.onFullPicModalShow} onPicModalShow={this.onPicModalShow} onModalShow={this.onModalShow} spot={this.props.spot} />
-				<AddJournalEntryComponent dispatcher={this.dispatcher} entry={this.state.newEntry} spot={this.props.spot}/>
+
+				<AddMediaComponent dispatcher={this.dispatcher} picture={this.state.newPic} spot={this.props.spot} onPictureQuery={this.onPictureQuery}/>
+				<AddJournalEntryComponent dispatcher={this.dispatcher} entry={this.state.newEntry} spot={this.props.spot} onEntryQuery={this.onEntryQuery}/>
+
 				<div ref="myModal"id="myModal" className="modal fade bs-example-modal-lg" tabIndex="-1" role="dialog" ariaLabelledby="myLargeModalLabel">
 					<div className="modal-dialog modal-lg">
 						<div className="modal-content inputModal">
@@ -106,8 +114,56 @@ module.exports = React.createClass({
 						</div>
 					</div>
 				</div>
+				<div id="modaly" className="modal modaly fade bs-example-modal-lg" tabIndex="-1" role="dialog" ariaLabelledby="myLargeModalLabel">
+					<div className="modal-dialog modal-lg">
+						<div className="modal-content inputModal">
+							<h1>Edit</h1>
+							<hr/>
+							<form>
+								<div className="form-group xs-col-6">
+									<input type="text" ref="edit" className="form-control" id="blogTitle" placeholder="Title"/>
+								</div>
+								<div className="form-group">
+									<textarea ref="edit2" className="form-control" rows="6" placeholder="Trip Memories Go Here!"></textarea>
+								</div>
+							</form>
+							 <div className="modal-footer">
+								<button onClick={this.closeModal} type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
+								<button  type="button" className="btn btn-primary">Save</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="modelier" className="modal modaly fade bs-example-modal-lg" tabIndex="-1" role="dialog" ariaLabelledby="myLargeModalLabel">
+					<div className="modal-dialog modal-lg">
+						<div className="modal-content inputModal">
+							<h1>Remove Trip</h1>
+							<hr/>
+							<div className="alert alert-danger" role="alert">
+								<p>
+									Warning all Pictures, and Journals associated with this Spot will be permanetly removed! (enter spot name to confirm)
+								</p>
+								<br/>
+								<div className="form-group">
+    								<label htmlFor="exampleInputEmail1">Spot Name</label>
+    								<input type="text" ref="deleteConfirm" className="form-control" id="exampleInputEmail1"/>
+  								</div>
+							</div>
+							<div className="modal-footer">
+								<button onClick={this.closeOtherModal} type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
+								<button onClick={this.deleteTrip} className="btn btn-primary">Destroy Forever :(</button>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		);
+	},
+	onPictureQuery: function(pictures) {
+		this.setState({pictures: pictures})
+	},
+	onEntryQuery: function(entries) {
+		this.setState({entries: entries})
 	},
 	onModalShow: function() {
 		$(this.refs.myModal).modal('show');
@@ -162,5 +218,49 @@ module.exports = React.createClass({
 		this.refs.addPicture.value = '';
 		this.refs.caption.value = '';
 		this.refs.title.value = '';
+	},
+	editTrip: function() {
+		$('#modaly').modal('show');
+	},
+	deleteModal: function() {
+		$('#modelier').modal('show');
+	},
+	deleteTrip: function() {
+		console.log('start delete');
+		var answer = this.refs.deleteConfirm.value;
+		if(answer === this.state.spot.get('spotName')) {
+			Parse.Object.destroyAll(this.state.entries,{
+				success: function(entry) {
+					console.log('all journal entries destroyed')
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+			Parse.Object.destroyAll(this.state.pictures,{
+				success: function(picture) {
+					console.log('all pictures destroyed')
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+			this.state.spot.destroy({
+				success: function(object) {
+					console.log(object, ' has been permanetly deleted');
+				},
+				error: function(object) {
+					console.log('error deleting ', object)
+				}
+			})
+			$('#modelier').modal('hide');
+			this.props.router.navigate('#profile', {trigger: true});
+		}
+	},
+	closeModal: function() {
+		$('#modaly').modal('hide');
+	},
+	closeOtherModal: function() {
+		$('#modelier').modal('hide');	
 	}
 });

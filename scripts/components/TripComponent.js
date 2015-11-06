@@ -45,7 +45,8 @@ module.exports = React.createClass({
 					var marker = new google.maps.Marker({
 						position: myLatLng,
 						map: this.state.map,
-						title: spot.get('spotName')
+						title: spot.get('spotName'),
+						animation: google.maps.Animation.DROP
 					});
 					var infowindow = new google.maps.InfoWindow({
 						content: infoContent
@@ -203,7 +204,7 @@ module.exports = React.createClass({
 							</div>
 							<div className="modal-footer">
 								<button onClick={this.closeOtherModal} type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-								<button onClick={this.deleteTrip} className="btn btn-primary">Destroy Forever :(</button>
+								<button onClick={this.deleteTrip} className="btn btn-primary">Destroy Forever</button>
 							</div>
 						</div>
 					</div>
@@ -287,7 +288,6 @@ module.exports = React.createClass({
 			})
 			$('#modelier').modal('hide');
 			this.props.router.navigate('#profile', {trigger: true});
-			//this.props.router.navigate('#profile', {trigger: true});
 		}
 	},
 	closeModal: function() {
