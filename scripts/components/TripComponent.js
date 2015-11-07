@@ -55,7 +55,7 @@ module.exports = React.createClass({
 						infowindow.open(this.state.map, marker);
 					});
 				})
-				this.setState({spots: spots})
+				this.setState({spots: spots});
 			},
 			(err) => {
 				console.log(err);
@@ -125,7 +125,9 @@ module.exports = React.createClass({
 		var myList = [];
 		var newSpot = [];
 		var pictures = [];
+		var pictureList = [];
 		var entries = [];
+		
 		myList = this.state.spots.map(function(spot) {
 			return(
 				<a key={spot.id} href={'#spot/'+spot.id} className="list-group-item"><strong>{spot.get('spotName')}</strong><div>{spot.get('spotDateStart').toDateString()} thru {spot.get('spotDateEnd').toDateString()}</div></a>
@@ -135,6 +137,11 @@ module.exports = React.createClass({
 			return(
 				<PictureModalComponent picture={picture} key={picture.id}/>
 
+			)
+		})
+		pictureList = this.state.pictures.map(function(picture){
+			return(
+				<option key={picture.id} value={picture.id}>{picture.get('title')}</option>
 			)
 		})
 		entries = this.state.entries.map(function(entry) {
@@ -174,15 +181,25 @@ module.exports = React.createClass({
 							<hr/>
 							<form>
 								<div className="form-group xs-col-6">
-									<input type="text" ref="journalTitle" className="form-control" id="blogTitle" placeholder="Title"/>
+									<label>Change Trip Name</label>
+									<input type="text" ref="editTripTitle" className="form-control" id="blogTitle" />
 								</div>
-								<div className="form-group">
-									<textarea ref="entry" className="form-control" rows="6" placeholder="Trip Memories Go Here!"></textarea>
+								<div className="form-group xs-col-6">
+									<label>Trip Start </label>
+									<input ref="startDate" type="date"/>
+									<label> Trip End </label>
+									<input ref="endDate" type="date"/>
+								</div>
+								<div className="form-group xs-col-6">
+									<label>Select Trip Feature Pic</label>
+									<select ref="feature" className="form-control">
+										{pictureList}
+									</select>
 								</div>
 							</form>
 							 <div className="modal-footer">
 								<button onClick={this.closeModal} type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-								<button  type="button" className="btn btn-primary">Save</button>
+								<button onClick={this.changeTripInfo} type="button" className="btn btn-primary">Save</button>
 							</div>
 						</div>
 					</div>
@@ -211,6 +228,19 @@ module.exports = React.createClass({
 				</div>
 			</div>
 		);
+	},
+	changeTripInfo: function() {
+		console.log('changing');
+		console.log(this.refs.feature.value);
+		this.state.trip.save({
+			tripId: this.state.trip.id,
+			tripName: this.refs.editTripTitle.value === '' ? this.state.trip.get('tripName') : this.refs.editTripTitle.value,
+			tripStart: this.refs.startDate.value === '' ? new Date (this.state.trip.get('tripStart')) : new Date (this.refs.startDate.value),
+			tripEnd: this.refs.endDate.value === '' ? new Date (this.state.trip.get('tripEnd')) : new Date (this.refs.endDate.value),
+			featurePic: new PictureModel({objectId: this.refs.feature.value})
+		})
+		$('#modaly').modal('hide');
+		this.forceUpdate();
 	},
 	addNewLocation: function(address,tripTitle,startDate,endDate) {
 		var newSpot = new SpotModel({

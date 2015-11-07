@@ -197,7 +197,6 @@ textarea {
 	.caption:hover { 
 		text-decoration: none;
 		color: $hoverButtonColor;
-		transform: scale(1.1);
 	}
 }
 .carouselPic {
@@ -242,7 +241,6 @@ textarea {
 	box-shadow: 2px 2px 2.5px 0px rgba(0,0,0,0.2);
 }
 .thumbnail:hover {
-	transform: scale(1.1);
 	z-index: 9999;
 	color: $hoverButtonColor;
 }
@@ -331,6 +329,9 @@ nav{
 		margin-bottom: 1em;
 		border-radius: 0;
 	}
+	select {
+	border-radius: 0;
+	}
 	textarea {
 		margin-bottom: 1em;
 		border-radius: 0;
@@ -374,6 +375,21 @@ nav{
 .frontPageTripTile{ 
 	margin-left: .5em;
 	margin-right: .5em;
+	background-position: center; 
+	background-size: contain;
+	height: 15em;
+	background-repeat: no-repeat;
+	padding: 0;
+	transition: all .2s ease-in-out;
+	div {
+		.caption {
+			margin-top: 2em;
+			color: white;
+		}
+		background-color: rgba(0,0,0,.2);
+		text-align: center;
+		height: 15em;
+	}
 }
 
 @media screen and(min-width: 768px){
@@ -383,6 +399,15 @@ nav{
 	.modalCap {
 		margin-top: 27em;
 	}
+	.thumbnail:hover {
+		transform: scale(1.1);
+	}
+	.entryWrapper:hover {
+		transform: scale(1.1);
+	}
+	.frontPageTripTile:hover {
+		transform: scale(1.1);
+}
 }
 @media screen and(min-width: 992px){
 	.panel {

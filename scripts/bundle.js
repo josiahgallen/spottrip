@@ -34217,6 +34217,7 @@ module.exports = React.createClass({
 
 		var query = new Parse.Query(TripModel);
 		query.include('userId');
+		query.include('featurePic');
 		query.descending('createdAt').find().then(function (trips) {
 			_this.setState({ trips: trips });
 		}, function (err) {
@@ -34228,25 +34229,33 @@ module.exports = React.createClass({
 		trips = this.state.trips.map(function (trip) {
 			return React.createElement(
 				'div',
-				{ key: trip.id, className: 'communityTile', style: { backgroundImage: 'url(../images/mapPic.png)' } },
+				{ key: trip.id, className: 'col-md-4' },
 				React.createElement(
-					'a',
-					{ href: '#trip/' + trip.id, className: 'caption' },
+					'div',
+					{ className: 'entryWrapper frontPageTripTile', style: trip.get('featurePic') ? { backgroundImage: 'url(' + trip.get('featurePic').get('picture').url() + ')' } : { backgroundImage: 'url(../images/mapPic.png)' } },
 					React.createElement(
-						'h3',
+						'div',
 						null,
-						trip.get('tripName').toUpperCase()
-					),
-					React.createElement(
-						'p',
-						null,
-						trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
-					),
-					React.createElement(
-						'p',
-						null,
-						'Trip added by user: ',
-						trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+						React.createElement(
+							'a',
+							{ href: '#trip/' + trip.id, className: 'caption' },
+							React.createElement(
+								'h3',
+								null,
+								trip.get('tripName').toUpperCase()
+							),
+							React.createElement(
+								'p',
+								null,
+								trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
+							),
+							React.createElement(
+								'p',
+								null,
+								'Trip shared by SpotTraveler: ',
+								trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+							)
+						)
 					)
 				)
 			);
@@ -34257,7 +34266,7 @@ module.exports = React.createClass({
 			React.createElement(
 				'h1',
 				{ className: 'pageHeader' },
-				'Community Page'
+				'SpotTrip Community'
 			),
 			React.createElement(
 				'div',
@@ -34358,6 +34367,7 @@ module.exports = React.createClass({
 
 		var query = new Parse.Query(TripModel);
 		query.include('userId');
+		query.include('featurePic');
 		query.descending('createdAt').limit(4).find().then(function (trips) {
 			_this.setState({ trips: trips });
 		}, function (err) {
@@ -34377,25 +34387,29 @@ module.exports = React.createClass({
 				{ key: trip.id, className: 'col-md-6' },
 				React.createElement(
 					'div',
-					{ className: 'entryWrapper frontPageTripTile', style: { backgroundImage: 'url(../images/mapPic.png)' } },
+					{ className: 'entryWrapper frontPageTripTile', style: trip.get('featurePic') ? { backgroundImage: 'url(' + trip.get('featurePic').get('picture').url() + ')' } : { backgroundImage: 'url(../images/mapPic.png)' } },
 					React.createElement(
-						'a',
-						{ href: '#trip/' + trip.id, className: 'caption' },
+						'div',
+						null,
 						React.createElement(
-							'h3',
-							null,
-							trip.get('tripName').toUpperCase()
-						),
-						React.createElement(
-							'p',
-							null,
-							trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
-						),
-						React.createElement(
-							'p',
-							null,
-							'Trip added by user: ',
-							trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+							'a',
+							{ href: '#trip/' + trip.id, className: 'caption' },
+							React.createElement(
+								'h3',
+								null,
+								trip.get('tripName').toUpperCase()
+							),
+							React.createElement(
+								'p',
+								null,
+								trip.get('tripStart').toDateString() + ' - ' + trip.get('tripEnd').toDateString()
+							),
+							React.createElement(
+								'p',
+								null,
+								'Trip shared by SpotTraveler: ',
+								trip.get('userId').get('firstName') + ' ' + trip.get('userId').get('lastName').substr(0, 1)
+							)
 						)
 					)
 				)
@@ -35297,6 +35311,7 @@ module.exports = React.createClass({
 		this.dispatcher = {};
 		_.extend(this.dispatcher, Backbone.Events);
 		var query = new Parse.Query(SpotModel);
+		query.include('tripId');
 		query.get(this.props.spot).then(function (spot) {
 			var popUp = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
 			var mapCenter = { lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude };
@@ -35313,7 +35328,8 @@ module.exports = React.createClass({
 				title: spot.get('spotName'),
 				animation: google.maps.Animation.DROP
 			});
-			_this.setState({ map: _this.map, spot: spot });
+			console.log(spot.get('tripId').id);
+			_this.setState({ map: _this.map, spot: spot, tripName: spot.get('tripId').get('tripName') });
 		}, function (err) {
 			console.log(err);
 		});
@@ -35458,7 +35474,26 @@ module.exports = React.createClass({
 							null,
 							React.createElement('input', { type: 'text', maxLength: '20', className: 'form-control', ref: 'title', placeholder: 'title' }),
 							React.createElement('textarea', { maxLength: '50', className: 'form-control', rows: '2', ref: 'caption', placeholder: 'caption(limit to 50 characters)' }),
-							React.createElement('input', { type: 'file', className: 'fileUpload', ref: 'addPicture' })
+							React.createElement('input', { type: 'file', className: 'fileUpload', ref: 'addPicture' }),
+							React.createElement(
+								'label',
+								null,
+								'Feature Pic for My Trip?'
+							),
+							React.createElement(
+								'select',
+								{ ref: 'feature', className: 'form-control' },
+								React.createElement(
+									'option',
+									null,
+									'yes'
+								),
+								React.createElement(
+									'option',
+									null,
+									'no'
+								)
+							)
 						),
 						React.createElement(
 							'div',
@@ -35614,7 +35649,6 @@ module.exports = React.createClass({
 		var file = this.refs.addPicture.files[0];
 		var picLabel;
 		var formatTitle = this.refs.title.value.split(' ').join('');
-		console.log(formatTitle);
 		formatTitle.length > 0 ? picLabel = formatTitle : picLabel = 'picture';
 		var parseFile = new Parse.File(picLabel + '.png', file);
 		var pic = new PictureModel({
@@ -35627,6 +35661,11 @@ module.exports = React.createClass({
 		pic.save().then(function (pic) {
 			console.log(pic);
 			_this3.setState({ newPic: pic });
+			if (_this3.refs.feature.value === 'yes') {
+				_this3.state.spot.get('tripId').save({
+					featurePic: pic
+				});
+			}
 			_this3.dispatcher.trigger('picAdded', pic);
 		});
 		$(this.refs.picModal).modal('hide');
@@ -35802,7 +35841,9 @@ module.exports = React.createClass({
 		var myList = [];
 		var newSpot = [];
 		var pictures = [];
+		var pictureList = [];
 		var entries = [];
+
 		myList = this.state.spots.map(function (spot) {
 			return React.createElement(
 				'a',
@@ -35823,6 +35864,13 @@ module.exports = React.createClass({
 		});
 		pictures = this.state.pictures.map(function (picture) {
 			return React.createElement(PictureModalComponent, { picture: picture, key: picture.id });
+		});
+		pictureList = this.state.pictures.map(function (picture) {
+			return React.createElement(
+				'option',
+				{ key: picture.id, value: picture.id },
+				picture.get('title')
+			);
 		});
 		entries = this.state.entries.map(function (entry) {
 			return React.createElement(EntryModalComponent, { entry: entry, key: entry.id });
@@ -35929,12 +35977,42 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'form-group xs-col-6' },
-								React.createElement('input', { type: 'text', ref: 'journalTitle', className: 'form-control', id: 'blogTitle', placeholder: 'Title' })
+								React.createElement(
+									'label',
+									null,
+									'Change Trip Name'
+								),
+								React.createElement('input', { type: 'text', ref: 'editTripTitle', className: 'form-control', id: 'blogTitle' })
 							),
 							React.createElement(
 								'div',
-								{ className: 'form-group' },
-								React.createElement('textarea', { ref: 'entry', className: 'form-control', rows: '6', placeholder: 'Trip Memories Go Here!' })
+								{ className: 'form-group xs-col-6' },
+								React.createElement(
+									'label',
+									null,
+									'Trip Start '
+								),
+								React.createElement('input', { ref: 'startDate', type: 'date' }),
+								React.createElement(
+									'label',
+									null,
+									' Trip End '
+								),
+								React.createElement('input', { ref: 'endDate', type: 'date' })
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group xs-col-6' },
+								React.createElement(
+									'label',
+									null,
+									'Select Trip Feature Pic'
+								),
+								React.createElement(
+									'select',
+									{ ref: 'feature', className: 'form-control' },
+									pictureList
+								)
 							)
 						),
 						React.createElement(
@@ -35947,7 +36025,7 @@ module.exports = React.createClass({
 							),
 							React.createElement(
 								'button',
-								{ type: 'button', className: 'btn btn-primary' },
+								{ onClick: this.changeTripInfo, type: 'button', className: 'btn btn-primary' },
 								'Save'
 							)
 						)
@@ -36007,6 +36085,19 @@ module.exports = React.createClass({
 				)
 			)
 		);
+	},
+	changeTripInfo: function changeTripInfo() {
+		console.log('changing');
+		console.log(this.refs.feature.value);
+		this.state.trip.save({
+			tripId: this.state.trip.id,
+			tripName: this.refs.editTripTitle.value === '' ? this.state.trip.get('tripName') : this.refs.editTripTitle.value,
+			tripStart: this.refs.startDate.value === '' ? new Date(this.state.trip.get('tripStart')) : new Date(this.refs.startDate.value),
+			tripEnd: this.refs.endDate.value === '' ? new Date(this.state.trip.get('tripEnd')) : new Date(this.refs.endDate.value),
+			featurePic: new PictureModel({ objectId: this.refs.feature.value })
+		});
+		$('#modaly').modal('hide');
+		this.forceUpdate();
 	},
 	addNewLocation: function addNewLocation(address, tripTitle, startDate, endDate) {
 		var _this3 = this;

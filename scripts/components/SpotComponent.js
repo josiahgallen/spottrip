@@ -27,6 +27,7 @@ module.exports = React.createClass({
 		this.dispatcher = {};
 		_.extend(this.dispatcher, Backbone.Events);
 		var query = new Parse.Query(SpotModel);
+		query.include('tripId');
 		query.get(this.props.spot).then(
 			(spot) => {
 				var popUp = {lat: spot.get('spotMarker').latitude, lng: spot.get('spotMarker').longitude};
@@ -44,7 +45,8 @@ module.exports = React.createClass({
 						title: spot.get('spotName'),
 						animation: google.maps.Animation.DROP
 				});
-				this.setState({map: this.map, spot: spot});
+				console.log(spot.get('tripId').id);
+				this.setState({map: this.map, spot: spot, tripName: spot.get('tripId').get('tripName')});
 			},
 			(err) => {
 				console.log(err);
@@ -107,6 +109,12 @@ module.exports = React.createClass({
 								<input type="text" maxLength="20" className="form-control" ref="title" placeholder="title"/>
 								<textarea maxLength="50" className="form-control" rows="2" ref="caption" placeholder="caption(limit to 50 characters)"/>
 								<input type="file" className="fileUpload" ref="addPicture"/>
+								<label>Feature Pic for My Trip?</label>
+								<select ref="feature" className="form-control">
+									<option>yes</option>
+									<option>no</option>
+								</select>
+								
 							</form>
 							<div className="modal-footer">
 								<button onClick={this.addPicture} className="btn btn-primary">Upload Photo</button>
@@ -199,7 +207,6 @@ module.exports = React.createClass({
 		var file = this.refs.addPicture.files[0];
 		var picLabel;
 		var formatTitle = this.refs.title.value.split(' ').join('');
-		console.log(formatTitle)
 		formatTitle.length > 0 ? picLabel = formatTitle : picLabel = 'picture';
 		var parseFile = new Parse.File(picLabel+'.png',file);
 		var pic = new PictureModel({
@@ -212,6 +219,11 @@ module.exports = React.createClass({
 		pic.save().then((pic) => {
 			console.log(pic);
 			this.setState({newPic: pic});
+			if (this.refs.feature.value === 'yes') {
+				this.state.spot.get('tripId').save({
+					featurePic: pic
+				})
+			}
 			this.dispatcher.trigger('picAdded',pic);
 		})
 		$(this.refs.picModal).modal('hide');
