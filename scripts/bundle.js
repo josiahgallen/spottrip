@@ -34281,7 +34281,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/TripModel":193,"react":174}],179:[function(require,module,exports){
+},{"../models/TripModel":194,"react":174}],179:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34583,7 +34583,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/PictureModel":191,"../models/TripModel":193,"react":174}],181:[function(require,module,exports){
+},{"../models/PictureModel":191,"../models/TripModel":194,"react":174}],181:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -34639,6 +34639,7 @@ module.exports = React.createClass({
 
 var React = require('react');
 var Backbone = require('backbone');
+var StatsModel = require('../models/StatsModel');
 
 module.exports = React.createClass({
 	displayName: 'exports',
@@ -34798,11 +34799,19 @@ module.exports = React.createClass({
 			password: this.refs.password.value,
 			email: this.refs.email.value,
 			firstName: this.refs.fName.value,
-			lastName: this.refs.lName.value,
-			//[trips,spots,blogs,pictures]
-			statsCounter: [0, 0, 0, 0]
+			lastName: this.refs.lName.value
 		}, {
 			success: function success(u) {
+				var travelStats = new StatsModel({
+					trips: 0,
+					spots: 0,
+					pictures: 0,
+					blogs: 0,
+					travelRank: 'Beginner',
+					userId: user
+
+				});
+				travelStats.save();
 				_this.props.router.navigate('profile', { trigger: true });
 			},
 			error: function error(u, _error) {
@@ -34830,7 +34839,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"react":174}],183:[function(require,module,exports){
+},{"../models/StatsModel":193,"backbone":1,"react":174}],183:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var Backbone = require('backbone');
@@ -35095,6 +35104,7 @@ var Backbone = require('backbone');
 var InfoWindowComponent = require('./InfoWindowComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var TripModel = require('../models/TripModel');
+var StatsModel = require('../models/StatsModel');
 var TripsPortalComponent = require('./TripsNSpotsPortalComponent');
 
 module.exports = React.createClass({
@@ -35269,7 +35279,17 @@ module.exports = React.createClass({
 				infowindow.open(_this3.state.map, marker);
 			});
 			_this3.setState({ newTrip: trip });
-			Parse.User.current().get('travelStats');
+			var statQuery = new Parse.Query(StatsModel);
+			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+				stats.forEach(function (stat) {
+					var trips = stat.get('trips');
+					stat.save({
+						trips: trips + 1
+					});
+				});
+			}, function (err) {
+				console.log(err);
+			});
 			_this3.props.router.navigate('#trip/' + trip.id, { trigger: true });
 		}, function (err) {
 			console.log(err);
@@ -35277,12 +35297,13 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/TripModel":193,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":181,"./TripsNSpotsPortalComponent":188,"backbone":1,"react":174,"react-dom":19}],186:[function(require,module,exports){
+},{"../models/StatsModel":193,"../models/TripModel":194,"./BreadCrumbsBarComponent":177,"./InfoWindowComponent":181,"./TripsNSpotsPortalComponent":188,"backbone":1,"react":174,"react-dom":19}],186:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var SpotModel = require('../models/SpotModel');
 var TripModel = require('../models/TripModel');
+var StatsModel = require('../models/StatsModel');
 var AddMediaComponent = require('./AddMediaComponent');
 var BreadCrumbsBarComponent = require('./BreadCrumbsBarComponent');
 var AddJournalEntryComponent = require('./AddJournalEntryComponent');
@@ -35299,7 +35320,9 @@ module.exports = React.createClass({
 			spot: null,
 			newPic: null,
 			entries: [],
-			pictures: []
+			pictures: [],
+			editPic: [],
+			editEntry: []
 		};
 	},
 	componentWillMount: function componentWillMount() {
@@ -35335,6 +35358,23 @@ module.exports = React.createClass({
 		});
 	},
 	render: function render() {
+		var pictureList = [];
+		var entryList = [];
+
+		pictureList = this.state.pictures.map(function (picture) {
+			return React.createElement(
+				'option',
+				{ key: picture.id, value: picture.id },
+				picture.get('title')
+			);
+		});
+		entryList = this.state.entries.map(function (entry) {
+			return React.createElement(
+				'option',
+				{ key: entry.id, value: entry.id },
+				entry.get('title')
+			);
+		});
 		return React.createElement(
 			'div',
 			null,
@@ -35528,12 +35568,65 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'form-group xs-col-6' },
-								React.createElement('input', { type: 'text', ref: 'edit', className: 'form-control', id: 'blogTitle', placeholder: 'Title' })
+								React.createElement(
+									'label',
+									null,
+									'Change Spot Name'
+								),
+								React.createElement('input', { type: 'text', ref: 'editSpotTitle', className: 'form-control', id: 'blogTitle' })
 							),
 							React.createElement(
 								'div',
-								{ className: 'form-group' },
-								React.createElement('textarea', { ref: 'edit2', className: 'form-control', rows: '6', placeholder: 'Trip Memories Go Here!' })
+								{ className: 'form-group xs-col-6' },
+								React.createElement(
+									'label',
+									null,
+									'Spot Start '
+								),
+								React.createElement('input', { ref: 'startDate', type: 'date' }),
+								React.createElement(
+									'label',
+									null,
+									' Spot End '
+								),
+								React.createElement('input', { ref: 'endDate', type: 'date' })
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group xs-col-6' },
+								React.createElement(
+									'label',
+									null,
+									'Edit Picture Info'
+								),
+								React.createElement(
+									'select',
+									{ ref: 'picList', className: 'form-control' },
+									pictureList
+								),
+								React.createElement(
+									'button',
+									{ onClick: this.editPic, type: 'button', className: 'selectOption' },
+									'Select'
+								),
+								React.createElement('br', null),
+								this.state.editPic,
+								React.createElement(
+									'label',
+									null,
+									'Edit Journal Entry Info'
+								),
+								React.createElement(
+									'select',
+									{ ref: 'entryList', className: 'form-control' },
+									entryList
+								),
+								React.createElement(
+									'button',
+									{ onClick: this.editEntry, type: 'button', className: 'selectOption' },
+									'Select'
+								),
+								this.state.editEntry
 							)
 						),
 						React.createElement(
@@ -35546,7 +35639,7 @@ module.exports = React.createClass({
 							),
 							React.createElement(
 								'button',
-								{ type: 'button', className: 'btn btn-primary' },
+								{ onClick: this.changeSpotInfo, type: 'button', className: 'btn btn-primary' },
 								'Save'
 							)
 						)
@@ -35564,8 +35657,8 @@ module.exports = React.createClass({
 						{ className: 'modal-content inputModal' },
 						React.createElement(
 							'h1',
-							null,
-							'Remove Trip'
+							{ className: 'deleteHeader' },
+							'Remove Spot'
 						),
 						React.createElement('hr', null),
 						React.createElement(
@@ -35598,14 +35691,143 @@ module.exports = React.createClass({
 							),
 							React.createElement(
 								'button',
-								{ onClick: this.deleteTrip, className: 'btn btn-primary' },
-								'Destroy Forever :('
+								{ onClick: this.deleteTrip, className: 'btn btn-danger' },
+								'Destroy Forever'
 							)
 						)
 					)
 				)
 			)
 		);
+	},
+	editPic: function editPic() {
+		var _this2 = this;
+
+		this.found = this.state.pictures.find(function (element, index) {
+			if (element.id === _this2.refs.picList.value) return element;
+		});
+		this.state.editPic = [];
+		this.state.editPic.push(React.createElement(
+			'div',
+			{ key: this.found.id, className: 'form-group xs-col-6' },
+			React.createElement(
+				'label',
+				null,
+				'Picture Title'
+			),
+			React.createElement('input', { type: 'text', maxLength: '20', className: 'form-control', defaultValue: this.found.get('title'), id: 'pictureTitleChange' }),
+			React.createElement('textarea', { maxLength: '50', className: 'form-control', rows: '2', defaultValue: this.found.get('caption'), id: 'pictureCaptionChange' }),
+			React.createElement(
+				'button',
+				{ className: 'selectOption', onClick: this.savePicChanges },
+				'Save Changes'
+			),
+			React.createElement(
+				'button',
+				{ className: 'selectOption', onClick: this.deleteOnePicture },
+				'Delete Picture'
+			)
+		));
+		this.setState({ editPic: this.state.editPic });
+	},
+	savePicChanges: function savePicChanges() {
+		this.found.save({
+			title: document.getElementById('pictureTitleChange').value,
+			caption: document.getElementById('pictureCaptionChange').value
+		});
+		$('#modaly').modal('hide');
+		this.setState({ needChange: 1 });
+	},
+	editEntry: function editEntry() {
+		var _this3 = this;
+
+		this.entryFound = this.state.entries.find(function (element, index) {
+			if (element.id === _this3.refs.entryList.value) return element;
+		});
+		this.state.editEntry = [];
+		this.state.editEntry.push(React.createElement(
+			'div',
+			{ key: this.entryFound.id, className: 'form-group xs-col-6' },
+			React.createElement(
+				'label',
+				null,
+				'Entry Title'
+			),
+			React.createElement('input', { type: 'text', className: 'form-control', defaultValue: this.entryFound.get('title'), id: 'entryTitleChange' }),
+			React.createElement('textarea', { className: 'form-control', rows: '4', defaultValue: this.entryFound.get('entry'), id: 'entryChange' }),
+			React.createElement(
+				'button',
+				{ className: 'selectOption', onClick: this.saveEntryChanges },
+				'Save Changes'
+			),
+			React.createElement(
+				'button',
+				{ className: 'selectOption', onClick: this.deleteOneEntry },
+				'Delete Entry'
+			)
+		));
+		this.setState({ editEntry: this.state.editEntry });
+	},
+	saveEntryChanges: function saveEntryChanges() {
+		console.log('entryChange');
+		this.entryFound.save({
+			title: document.getElementById('entryTitleChange').value,
+			entry: document.getElementById('entryChange').value
+		});
+		$('#modaly').modal('hide');
+		this.setState({ needChange: 1 });
+	},
+	deleteOnePicture: function deleteOnePicture() {
+		var answer = confirm('This Picture Will be permanetly deleted!');
+		if (answer) {
+			this.found.destroy({
+				success: function success(object) {
+					var statQuery = new Parse.Query(StatsModel);
+					statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+						stats.forEach(function (stat) {
+							var pics = stat.get('pictures');
+							stat.save({
+								pictures: pics - 1
+							});
+						});
+					}, function (err) {
+						console.log(err);
+					});
+					console.log(object, ' has been permanetly deleted');
+				},
+				error: function error(object) {
+					console.log('error deleting ', object);
+				}
+			});
+			$('#modaly').modal('hide');
+			this.setState({ needChange: 1 });
+		}
+	},
+	deleteOneEntry: function deleteOneEntry() {
+		var answer = confirm('This Journal Entry will be permanetly deleted!');
+		if (answer) {
+			this.entryFound.destroy({
+				success: function success(object) {
+					var statQuery = new Parse.Query(StatsModel);
+					statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+						stats.forEach(function (stat) {
+							var blogs = stat.get('blogs');
+							stat.save({
+								blogs: blogs - 1
+							});
+						});
+					}, function (err) {
+						console.log(err);
+					});
+					console.log(object, 'has been permanetly deleted');
+				},
+				error: function error(object) {
+					console.log('error deleting ', object);
+				}
+			});
+			$('#modaly').modal('hide');
+			this.setState({ needChange: 1 });
+		}
 	},
 	onPictureQuery: function onPictureQuery(pictures) {
 		this.setState({ pictures: pictures });
@@ -35616,18 +35838,27 @@ module.exports = React.createClass({
 	onModalShow: function onModalShow() {
 		$(this.refs.myModal).modal('show');
 	},
-	onPicModalShow: function onPicModalShow(e) {
+	onPicModalShow: function onPicModalShow() {
 		$(this.refs.picModal).modal('show');
 	},
-	onFullPicModalShow: function onFullPicModalShow(e) {
+	onFullPicModalShow: function onFullPicModalShow() {
 		$(this.refs.picture.id);
 	},
 	clearInput: function clearInput() {
 		this.refs.journalTitle.value = '';
 		this.refs.entry.value = '';
 	},
+	changeSpotInfo: function changeSpotInfo() {
+		this.state.spot.save({
+			spotName: this.refs.editSpotTitle.value === '' ? this.state.trip.get('tripName') : this.refs.editSpotTitle.value,
+			spotDateStart: this.refs.startDate.value === '' ? new Date(this.state.spot.get('spotDateStart')) : new Date(this.refs.startDate.value),
+			spotDateEnd: this.refs.endDate.value === '' ? new Date(this.state.spot.get('spotDateEnd')) : new Date(this.refs.endDate.value)
+		});
+		$('#modaly').modal('hide');
+		this.forceUpdate();
+	},
 	addJournalEntry: function addJournalEntry() {
-		var _this2 = this;
+		var _this4 = this;
 
 		var newEntry = new JournalEntryModel({
 			title: this.refs.journalTitle.value,
@@ -35636,15 +35867,26 @@ module.exports = React.createClass({
 			tripId: new TripModel({ objectId: this.state.spot.get('tripId').id })
 		});
 		newEntry.save().then(function (entry) {
-			_this2.setState({ newEntry: entry });
-			_this2.dispatcher.trigger('entryAdded', entry);
+			_this4.setState({ newEntry: entry });
+			var statQuery = new Parse.Query(StatsModel);
+			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+				stats.forEach(function (stat) {
+					var blogs = stat.get('blogs');
+					stat.save({
+						blogs: blogs + 1
+					});
+				});
+			}, function (err) {
+				console.log(err);
+			});
+			_this4.dispatcher.trigger('entryAdded', entry);
 		});
 		$(this.refs.myModal).modal('hide');
 		this.refs.journalTitle.value = '';
 		this.refs.entry.value = '';
 	},
 	addPicture: function addPicture() {
-		var _this3 = this;
+		var _this5 = this;
 
 		var file = this.refs.addPicture.files[0];
 		var picLabel;
@@ -35660,13 +35902,24 @@ module.exports = React.createClass({
 		pic.set('picture', parseFile);
 		pic.save().then(function (pic) {
 			console.log(pic);
-			_this3.setState({ newPic: pic });
-			if (_this3.refs.feature.value === 'yes') {
-				_this3.state.spot.get('tripId').save({
+			_this5.setState({ newPic: pic });
+			var statQuery = new Parse.Query(StatsModel);
+			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+				stats.forEach(function (stat) {
+					var pics = stat.get('pictures');
+					stat.save({
+						pictures: pics + 1
+					});
+				});
+			}, function (err) {
+				console.log(err);
+			});
+			if (_this5.refs.feature.value === 'yes') {
+				_this5.state.spot.get('tripId').save({
 					featurePic: pic
 				});
 			}
-			_this3.dispatcher.trigger('picAdded', pic);
+			_this5.dispatcher.trigger('picAdded', pic);
 		});
 		$(this.refs.picModal).modal('hide');
 		this.refs.addPicture.value = '';
@@ -35702,6 +35955,23 @@ module.exports = React.createClass({
 			this.state.spot.destroy({
 				success: function success(object) {
 					console.log(object, ' has been permanetly deleted');
+					var statQuery = new Parse.Query(StatsModel);
+					statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+						stats.forEach(function (stat) {
+							var pics = stat.get('pictures');
+							var blogs = stat.get('blogs');
+							var spots = stat.get('spots');
+							pics > 0 ? pics = pics - 1 : pics = pics;
+							blogs > 0 ? blogs = blogs - 1 : blogs = blogs;
+							stat.save({
+								pictures: pics,
+								blogs: blogs,
+								spots: spots - 1
+							});
+						});
+					}, function (err) {
+						console.log(err);
+					});
 				},
 				error: function error(object) {
 					console.log('error deleting ', object);
@@ -35719,12 +35989,13 @@ module.exports = React.createClass({
 	}
 });
 
-},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"../models/TripModel":193,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],187:[function(require,module,exports){
+},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"../models/StatsModel":193,"../models/TripModel":194,"./AddJournalEntryComponent":175,"./AddMediaComponent":176,"./BreadCrumbsBarComponent":177,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"react":174,"react-dom":19}],187:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var TripModel = require('../models/TripModel');
 var SpotModel = require('../models/SpotModel');
+var StatsModel = require('../models/StatsModel');
 var PictureModel = require('../models/PictureModel');
 var JournalEntryModel = require('../models/JournalEntryModel');
 var PictureModalComponent = require('./PictureModalComponent');
@@ -35968,7 +36239,7 @@ module.exports = React.createClass({
 						React.createElement(
 							'h1',
 							null,
-							'Edit'
+							'Edit Trip'
 						),
 						React.createElement('hr', null),
 						React.createElement(
@@ -36090,7 +36361,6 @@ module.exports = React.createClass({
 		console.log('changing');
 		console.log(this.refs.feature.value);
 		this.state.trip.save({
-			tripId: this.state.trip.id,
 			tripName: this.refs.editTripTitle.value === '' ? this.state.trip.get('tripName') : this.refs.editTripTitle.value,
 			tripStart: this.refs.startDate.value === '' ? new Date(this.state.trip.get('tripStart')) : new Date(this.refs.startDate.value),
 			tripEnd: this.refs.endDate.value === '' ? new Date(this.state.trip.get('tripEnd')) : new Date(this.refs.endDate.value),
@@ -36125,6 +36395,17 @@ module.exports = React.createClass({
 				infowindow.open(_this3.state.map, marker);
 			});
 			_this3.setState({ newSpot: spot });
+			var statQuery = new Parse.Query(StatsModel);
+			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+				stats.forEach(function (stat) {
+					var spots = stat.get('spots');
+					stat.save({
+						spots: spots + 1
+					});
+				});
+			}, function (err) {
+				console.log(err);
+			});
 			_this3.props.router.navigate('#spot/' + spot.id, { trigger: true });
 		}, function (err) {
 			console.log(err);
@@ -36166,6 +36447,26 @@ module.exports = React.createClass({
 			});
 			this.state.trip.destroy({
 				success: function success(object) {
+					var statQuery = new Parse.Query(StatsModel);
+					statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+						stats.forEach(function (stat) {
+							var pics = stat.get('pictures');
+							var blogs = stat.get('blogs');
+							var spots = stat.get('spots');
+							var trips = stat.get('trips');
+							pics > 0 ? pics = pics - 1 : pics = pics;
+							blogs > 0 ? blogs = blogs - 1 : blogs = blogs;
+							spots > 0 ? spots = spots - 1 : spots = spots;
+							stat.save({
+								pictures: pics,
+								blogs: blogs,
+								spots: spots,
+								trips: trips - 1
+							});
+						});
+					}, function (err) {
+						console.log(err);
+					});
 					console.log(object, ' has been permanetly deleted');
 				},
 				error: function error(object) {
@@ -36185,13 +36486,14 @@ module.exports = React.createClass({
 
 });
 
-},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"../models/TripModel":193,"./BreadCrumbsBarComponent":177,"./EntryModalComponent":179,"./InfoWindowComponent":181,"./PictureModalComponent":184,"./TripsNSpotsPortalComponent":188,"react":174,"react-dom":19}],188:[function(require,module,exports){
+},{"../models/JournalEntryModel":190,"../models/PictureModel":191,"../models/SpotModel":192,"../models/StatsModel":193,"../models/TripModel":194,"./BreadCrumbsBarComponent":177,"./EntryModalComponent":179,"./InfoWindowComponent":181,"./PictureModalComponent":184,"./TripsNSpotsPortalComponent":188,"react":174,"react-dom":19}],188:[function(require,module,exports){
 'use strict';
 
 'usestrict';
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
+var StatsModel = require('../models/StatsModel');
 require('bootstrap');
 
 module.exports = React.createClass({
@@ -36199,14 +36501,56 @@ module.exports = React.createClass({
 
 	getInitialState: function getInitialState() {
 		return {
-			trips: 0
+			trips: 0,
+			spots: 0,
+			entries: 0,
+			pics: 0,
+			rank: ''
 		};
 	},
 	componentWillMount: function componentWillMount() {
-		var trips = Parse.User.current().get('totalTrips');
-		this.setState({ trips: trips });
+		var _this = this;
+
+		var statQuery = new Parse.Query(StatsModel);
+		statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+			stats.forEach(function (stat) {
+				var spots = stat.get('spots');
+				var trips = stat.get('trips');
+				var pics = stat.get('pictures');
+				var entries = stat.get('blogs');
+				var rank = 'Beginner';
+				var combined = [];
+				combined.push(spots, trips, pics, entries);
+				var reduced = combined.reduce(function (a, b) {
+					return a + b;
+				});
+				if (reduced >= 20) {
+					rank = 'Journeyman';
+				} else if (reduced < 20 && reduced >= 15) {
+					rank = 'Well Traveled';
+				} else if (reduced < 15 && reduced >= 10) {
+					rank = 'Getting Around';
+				} else if (reduced < 10 && reduced >= 5) {
+					rank = 'Novice';
+				} else if (reduced < 5) {
+					rank = 'Beginner';
+				}
+				console.log(rank);
+				_this.setState({
+					trips: trips,
+					spots: spots,
+					pics: pics,
+					entries: entries,
+					rank: rank
+				});
+			});
+		}, function (err) {
+			console.log(err);
+		});
 	},
 	render: function render() {
+		console.log(this.state.rank);
+
 		var currentURL = Backbone.history.getFragment();
 		var buttonTitle = 'Start a new Trip';
 		currentURL.indexOf('trip') > -1 ? buttonTitle = 'Add a new Spot' : '';
@@ -36242,7 +36586,8 @@ module.exports = React.createClass({
 					React.createElement(
 						'h5',
 						null,
-						'Traveler Rank: Beginner'
+						'Traveler Rank: ',
+						this.state.rank
 					),
 					React.createElement(
 						'ul',
@@ -36253,7 +36598,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'span',
 								{ className: 'badge' },
-								'0'
+								this.state.trips
 							),
 							'Trips'
 						),
@@ -36263,7 +36608,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'span',
 								{ className: 'badge' },
-								'0'
+								this.state.spots
 							),
 							'Spots'
 						),
@@ -36273,7 +36618,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'span',
 								{ className: 'badge' },
-								'0'
+								this.state.entries
 							),
 							'Blog Entries'
 						),
@@ -36283,7 +36628,7 @@ module.exports = React.createClass({
 							React.createElement(
 								'span',
 								{ className: 'badge' },
-								'0'
+								this.state.pics
 							),
 							'Picture Uploads'
 						)
@@ -36309,7 +36654,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],189:[function(require,module,exports){
+},{"../models/StatsModel":193,"backbone":1,"bootstrap":4,"react":174,"react-dom":19}],189:[function(require,module,exports){
 'use strict';
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -36388,6 +36733,13 @@ module.exports = Parse.Object.extend({
 });
 
 },{}],193:[function(require,module,exports){
+'use strict';
+
+module.exports = Parse.Object.extend({
+	className: 'TravelStatsModel'
+});
+
+},{}],194:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({

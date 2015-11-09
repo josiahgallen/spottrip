@@ -391,7 +391,18 @@ nav{
 		height: 15em;
 	}
 }
-
+.deleteHeader {
+	color: red;
+}
+.selectOption {
+	border: none;
+	margin-top: 5px;
+	margin-right: 5px;
+}
+.badge {
+	background-color: #B2D0FF;
+	color: #1F2D49;
+}
 @media screen and(min-width: 768px){
 	.pictureModal {
 		height: 40em;
