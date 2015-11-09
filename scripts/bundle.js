@@ -34229,7 +34229,7 @@ module.exports = React.createClass({
 		trips = this.state.trips.map(function (trip) {
 			return React.createElement(
 				'div',
-				{ key: trip.id, className: 'col-md-4' },
+				{ key: trip.id, className: 'col-sm-6 col-md-4' },
 				React.createElement(
 					'div',
 					{ className: 'entryWrapper frontPageTripTile', style: trip.get('featurePic') ? { backgroundImage: 'url(' + trip.get('featurePic').get('picture').url() + ')' } : { backgroundImage: 'url(../images/mapPic.png)' } },
@@ -34375,11 +34375,6 @@ module.exports = React.createClass({
 		});
 	},
 	render: function render() {
-		//console.log(Parse.User.current().get('travelStats'));
-		// var stats = [];
-		// stats = Parse.User.current().get('totalTrips');
-		// console.log(stats);
-
 		var trips = [];
 		trips = this.state.trips.map(function (trip) {
 			return React.createElement(
@@ -35321,6 +35316,7 @@ module.exports = React.createClass({
 			newPic: null,
 			entries: [],
 			pictures: [],
+			pic1: [],
 			editPic: [],
 			editEntry: []
 		};
@@ -35360,6 +35356,52 @@ module.exports = React.createClass({
 	render: function render() {
 		var pictureList = [];
 		var entryList = [];
+		var slides = [];
+		var slide1 = [];
+
+		slide1 = this.state.pic1.map(function (picture) {
+			return React.createElement(
+				'div',
+				{ className: 'item active personalItem', key: picture.id },
+				React.createElement('img', { className: 'personalCarouselPic', src: picture.get('picture').url() }),
+				React.createElement(
+					'div',
+					{ className: 'carousel-caption' },
+					React.createElement(
+						'h3',
+						null,
+						picture.get('title').toUpperCase()
+					),
+					React.createElement(
+						'p',
+						null,
+						picture.get('caption')
+					)
+				)
+			);
+		});
+
+		slides = this.state.pictures.map(function (picture) {
+			return React.createElement(
+				'div',
+				{ className: 'item personalItem', key: picture.id },
+				React.createElement('img', { className: 'personalCarouselPic', src: picture.get('picture').url() }),
+				React.createElement(
+					'div',
+					{ className: 'carousel-caption' },
+					React.createElement(
+						'h3',
+						null,
+						picture.get('title').toUpperCase()
+					),
+					React.createElement(
+						'p',
+						null,
+						picture.get('caption')
+					)
+				)
+			);
+		});
 
 		pictureList = this.state.pictures.map(function (picture) {
 			return React.createElement(
@@ -35424,6 +35466,12 @@ module.exports = React.createClass({
 				{ className: 'addMediaButtonsWrapper' },
 				React.createElement(
 					'button',
+					{ onClick: this.onSlideShow, title: 'Launch Slide Show', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+					React.createElement('span', { className: 'glyphicon glyphicon-blackboard', 'aria-hidden': 'true' })
+				),
+				React.createElement('br', null),
+				React.createElement(
+					'button',
 					{ onClick: this.onModalShow, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
 					React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
 				),
@@ -35437,7 +35485,7 @@ module.exports = React.createClass({
 				React.createElement(
 					'button',
 					{ onClick: this.editTrip, title: 'Edit Spot', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-cog', 'aria-hidden': 'true' })
+					React.createElement('span', { className: 'glyphicon glyphicon-edit', 'aria-hidden': 'true' })
 				),
 				React.createElement('br', null),
 				React.createElement(
@@ -35697,6 +35745,48 @@ module.exports = React.createClass({
 						)
 					)
 				)
+			),
+			React.createElement(
+				'div',
+				{ id: 'slideShowModal', className: 'modal modaly fade bs-example-modal-lg', tabIndex: '-1', role: 'dialog', ariaLabelledby: 'myLargeModalLabel' },
+				React.createElement(
+					'div',
+					{ className: 'modal-dialog modal-lg' },
+					React.createElement(
+						'div',
+						{ className: 'modal-content inputModal slideShowModal' },
+						React.createElement(
+							'div',
+							{ id: 'carousel-example-generic', className: 'carousel slide', 'data-ride': 'carousel' },
+							React.createElement(
+								'div',
+								{ className: 'carousel-inner', role: 'listbox' },
+								slide1,
+								slides
+							),
+							React.createElement(
+								'a',
+								{ className: 'left carousel-control', href: '#carousel-example-generic', role: 'button', 'data-slide': 'prev' },
+								React.createElement('span', { className: 'glyphicon glyphicon-chevron-left', 'aria-hidden': 'true' }),
+								React.createElement(
+									'span',
+									{ className: 'sr-only' },
+									'Previous'
+								)
+							),
+							React.createElement(
+								'a',
+								{ className: 'right carousel-control', href: '#carousel-example-generic', role: 'button', 'data-slide': 'next' },
+								React.createElement('span', { className: 'glyphicon glyphicon-chevron-right', 'aria-hidden': 'true' }),
+								React.createElement(
+									'span',
+									{ className: 'sr-only' },
+									'Next'
+								)
+							)
+						)
+					)
+				)
 			)
 		);
 	},
@@ -35829,8 +35919,13 @@ module.exports = React.createClass({
 			this.setState({ needChange: 1 });
 		}
 	},
+	onSlideShow: function onSlideShow() {
+		$('#slideShowModal').modal('show');
+	},
 	onPictureQuery: function onPictureQuery(pictures) {
-		this.setState({ pictures: pictures });
+		var pic1 = [];
+		pic1.push(pictures.shift());
+		this.setState({ pic1: pic1, pictures: pictures });
 	},
 	onEntryQuery: function onEntryQuery(entries) {
 		this.setState({ entries: entries });
@@ -36218,7 +36313,7 @@ module.exports = React.createClass({
 				React.createElement(
 					'button',
 					{ onClick: this.editTrip, title: 'Edit Trip', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-cog', 'aria-hidden': 'true' })
+					React.createElement('span', { className: 'glyphicon glyphicon-edit', 'aria-hidden': 'true' })
 				),
 				React.createElement('br', null),
 				React.createElement(

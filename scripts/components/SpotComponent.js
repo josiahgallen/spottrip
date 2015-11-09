@@ -19,6 +19,7 @@ module.exports = React.createClass({
 			newPic: null,
 			entries: [],
 			pictures: [],
+			pic1: [],
 			editPic: [],
 			editEntry: []
 		}
@@ -59,6 +60,32 @@ module.exports = React.createClass({
 	render: function() {
 		var pictureList = [];
 		var entryList = [];
+		var slides = [];
+		var slide1 = [];
+		
+		slide1 = this.state.pic1.map(function(picture) {
+			return (
+				<div className="item active personalItem" key={picture.id}>
+					<img className="personalCarouselPic" src={picture.get('picture').url()}/>
+					<div className="carousel-caption">
+						<h3>{picture.get('title').toUpperCase()}</h3>
+						<p>{picture.get('caption')}</p>
+					</div>
+				</div>
+			)
+		})	
+
+		slides = this.state.pictures.map(function(picture){
+			return(
+				<div className="item personalItem" key={picture.id}>
+					<img className="personalCarouselPic" src={picture.get('picture').url()}/>
+					<div className="carousel-caption">
+						<h3>{picture.get('title').toUpperCase()}</h3>
+						<p>{picture.get('caption')}</p>
+					</div>
+				</div>
+			)
+		})
 		
 		pictureList = this.state.pictures.map(function(picture){
 			return(
@@ -84,11 +111,13 @@ module.exports = React.createClass({
 					</div>
 				</div>
 				<div className="addMediaButtonsWrapper">
+					<button onClick={this.onSlideShow} title="Launch Slide Show" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-blackboard" aria-hidden="true"></span></button>
+					<br/>
 					<button onClick={this.onModalShow} title="Add Journal Entry" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
 					<br/>
 					<button onClick={this.onPicModalShow} title="Add Photo" type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-camera" aria-hidden="true"></span></button>
 					<br/>
-					<button onClick={this.editTrip} title="Edit Spot" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-cog" aria-hidden="true"></span></button>
+					<button onClick={this.editTrip} title="Edit Spot" type="button" className="btn btn-primary hoverButton bottomButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
 					<br/>
 					<button onClick={this.deleteModal} title="Delete Spot" type="button" className="btn btn-primary hoverButton" dataToggle="modal" dataTarget=".bs-example-modal-lg"><span className="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 				</div>
@@ -195,6 +224,28 @@ module.exports = React.createClass({
 							<div className="modal-footer">
 								<button onClick={this.closeOtherModal} type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
 								<button onClick={this.deleteTrip} className="btn btn-danger">Destroy Forever</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="slideShowModal" className="modal modaly fade bs-example-modal-lg" tabIndex="-1" role="dialog" ariaLabelledby="myLargeModalLabel">
+					<div className="modal-dialog modal-lg">
+						<div className="modal-content inputModal slideShowModal">
+							
+							<div id="carousel-example-generic" className="carousel slide" data-ride="carousel">
+								
+								<div className="carousel-inner" role="listbox">
+									{slide1}
+									{slides}
+								</div> 
+								<a className="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+									<span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+									<span className="sr-only">Previous</span>
+								</a>
+								<a className="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+									<span className="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+									<span className="sr-only">Next</span>
+								</a>
 							</div>
 						</div>
 					</div>
@@ -310,8 +361,13 @@ module.exports = React.createClass({
 			this.setState({needChange: 1});
 		}
 	},
+	onSlideShow: function() {
+		$('#slideShowModal').modal('show');
+	},
 	onPictureQuery: function(pictures) {
-		this.setState({pictures: pictures})
+		var pic1 = [];
+		pic1.push(pictures.shift())
+		this.setState({pic1: pic1, pictures: pictures})
 	},
 	onEntryQuery: function(entries) {
 		this.setState({entries: entries})

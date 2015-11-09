@@ -368,6 +368,16 @@ nav #createATripButton:hover {
   background-color: #B2D0FF;
   color: #1F2D49; }
 
+.slideShowModal {
+  padding: 0; }
+
+.personalCarouselPic {
+  margin: 0 auto;
+  max-height: 40em; }
+
+.personalItem {
+  background-color: black; }
+
 @media screen and (min-width: 768px) {
   .pictureModal {
     height: 40em; }
