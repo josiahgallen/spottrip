@@ -19,7 +19,6 @@ module.exports = React.createClass({
 			newPic: null,
 			entries: [],
 			pictures: [],
-			pic1: [],
 			editPic: [],
 			editEntry: []
 		}
@@ -61,23 +60,14 @@ module.exports = React.createClass({
 		var pictureList = [];
 		var entryList = [];
 		var slides = [];
-		var slide1 = [];
-		
-		slide1 = this.state.pic1.map(function(picture) {
-			return (
-				<div className="item active personalItem" key={picture.id}>
-					<img className="personalCarouselPic" src={picture.get('picture').url()}/>
-					<div className="carousel-caption">
-						<h3>{picture.get('title').toUpperCase()}</h3>
-						<p>{picture.get('caption')}</p>
-					</div>
-				</div>
-			)
-		})	
 
-		slides = this.state.pictures.map(function(picture){
+		slides = this.state.pictures.map(function(picture, index){
+			var classNameString = 'item personalItem';
+			if(index === 0) {
+				classNameString += ' active';
+			}
 			return(
-				<div className="item personalItem" key={picture.id}>
+				<div className={classNameString} key={picture.id}>
 					<img className="personalCarouselPic" src={picture.get('picture').url()}/>
 					<div className="carousel-caption">
 						<h3>{picture.get('title').toUpperCase()}</h3>
@@ -365,9 +355,7 @@ module.exports = React.createClass({
 		$('#slideShowModal').modal('show');
 	},
 	onPictureQuery: function(pictures) {
-		var pic1 = [];
-		pic1.push(pictures.shift())
-		this.setState({pic1: pic1, pictures: pictures})
+		this.setState({pictures: pictures})
 	},
 	onEntryQuery: function(entries) {
 		this.setState({entries: entries})
@@ -431,6 +419,7 @@ module.exports = React.createClass({
 		var formatTitle = this.refs.title.value.split(' ').join('');
 		formatTitle.length > 0 ? picLabel = formatTitle : picLabel = 'picture';
 		var parseFile = new Parse.File(picLabel+'.png',file);
+		console.log('addPicture', this.props.spot);
 		var pic = new PictureModel({
 			spotId: new SpotModel({objectId:this.props.spot}),
 			title: this.refs.title.value,

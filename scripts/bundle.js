@@ -35316,7 +35316,6 @@ module.exports = React.createClass({
 			newPic: null,
 			entries: [],
 			pictures: [],
-			pic1: [],
 			editPic: [],
 			editEntry: []
 		};
@@ -35357,34 +35356,15 @@ module.exports = React.createClass({
 		var pictureList = [];
 		var entryList = [];
 		var slides = [];
-		var slide1 = [];
 
-		slide1 = this.state.pic1.map(function (picture) {
+		slides = this.state.pictures.map(function (picture, index) {
+			var classNameString = 'item personalItem';
+			if (index === 0) {
+				classNameString += ' active';
+			}
 			return React.createElement(
 				'div',
-				{ className: 'item active personalItem', key: picture.id },
-				React.createElement('img', { className: 'personalCarouselPic', src: picture.get('picture').url() }),
-				React.createElement(
-					'div',
-					{ className: 'carousel-caption' },
-					React.createElement(
-						'h3',
-						null,
-						picture.get('title').toUpperCase()
-					),
-					React.createElement(
-						'p',
-						null,
-						picture.get('caption')
-					)
-				)
-			);
-		});
-
-		slides = this.state.pictures.map(function (picture) {
-			return React.createElement(
-				'div',
-				{ className: 'item personalItem', key: picture.id },
+				{ className: classNameString, key: picture.id },
 				React.createElement('img', { className: 'personalCarouselPic', src: picture.get('picture').url() }),
 				React.createElement(
 					'div',
@@ -35923,9 +35903,7 @@ module.exports = React.createClass({
 		$('#slideShowModal').modal('show');
 	},
 	onPictureQuery: function onPictureQuery(pictures) {
-		var pic1 = [];
-		pic1.push(pictures.shift());
-		this.setState({ pic1: pic1, pictures: pictures });
+		this.setState({ pictures: pictures });
 	},
 	onEntryQuery: function onEntryQuery(entries) {
 		this.setState({ entries: entries });
@@ -35988,6 +35966,7 @@ module.exports = React.createClass({
 		var formatTitle = this.refs.title.value.split(' ').join('');
 		formatTitle.length > 0 ? picLabel = formatTitle : picLabel = 'picture';
 		var parseFile = new Parse.File(picLabel + '.png', file);
+		console.log('addPicture', this.props.spot);
 		var pic = new PictureModel({
 			spotId: new SpotModel({ objectId: this.props.spot }),
 			title: this.refs.title.value,
