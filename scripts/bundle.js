@@ -34376,6 +34376,15 @@ module.exports = React.createClass({
 	},
 	render: function render() {
 		var trips = [];
+		var button = [];
+
+		if (!Parse.User.current()) {
+			button.push(React.createElement(
+				'a',
+				{ key: 'button', className: 'featureButton', href: '#register' },
+				'Get Started Here'
+			));
+		}
 		trips = this.state.trips.map(function (trip) {
 			return React.createElement(
 				'div',
@@ -34562,11 +34571,7 @@ module.exports = React.createClass({
 				React.createElement(
 					'div',
 					{ className: 'anchorWrapper' },
-					React.createElement(
-						'a',
-						{ className: 'featureButton', href: '#register' },
-						'Get Started Here'
-					)
+					button
 				)
 			)
 		);
@@ -35465,6 +35470,10 @@ module.exports = React.createClass({
 			_this2.state.needChange++;
 			_this2.setState({ needChange: _this2.state.needChange });
 		});
+		this.dispatcher.on('changed', function () {
+			_this2.state.needChange++;
+			_this2.setState({ needChange: _this2.state.needChange });
+		});
 		return React.createElement(
 			'div',
 			null,
@@ -35472,6 +35481,11 @@ module.exports = React.createClass({
 				'h1',
 				{ className: 'pageHeader' },
 				this.state.spot ? this.state.spot.get('spotName') : ''
+			),
+			React.createElement(
+				'h4',
+				{ className: 'dateHeading' },
+				this.state.spot ? this.state.spot.get('spotDateStart').toDateString() + ' - ' + this.state.spot.get('spotDateEnd').toDateString() : ''
 			),
 			React.createElement(
 				BreadCrumbsBarComponent,
@@ -35838,6 +35852,7 @@ module.exports = React.createClass({
 			)
 		));
 		this.setState({ editPic: this.state.editPic });
+		this.dispatcher.trigger('changed');
 	},
 	savePicChanges: function savePicChanges() {
 		this.found.save({
@@ -35845,7 +35860,7 @@ module.exports = React.createClass({
 			caption: document.getElementById('pictureCaptionChange').value
 		});
 		$('#modaly').modal('hide');
-		this.setState({ needChange: 1 });
+		this.dispatcher.trigger('changed');
 	},
 	editEntry: function editEntry() {
 		var _this4 = this;
@@ -35876,6 +35891,7 @@ module.exports = React.createClass({
 			)
 		));
 		this.setState({ editEntry: this.state.editEntry });
+		this.dispatcher.trigger('changed');
 	},
 	saveEntryChanges: function saveEntryChanges() {
 		console.log('entryChange');
@@ -35884,7 +35900,7 @@ module.exports = React.createClass({
 			entry: document.getElementById('entryChange').value
 		});
 		$('#modaly').modal('hide');
-		this.setState({ needChange: 1 });
+		this.dispatcher.trigger('changed');
 	},
 	deleteOnePicture: function deleteOnePicture() {
 		var _this5 = this;
@@ -35972,7 +35988,6 @@ module.exports = React.createClass({
 	},
 	onPicModalShow: function onPicModalShow() {
 		$(this.refs.picModal).modal('show');
-		this.props.dispatcher.trigger('test'); //////
 	},
 	onFullPicModalShow: function onFullPicModalShow() {
 		$(this.refs.picture.id);
@@ -35988,6 +36003,7 @@ module.exports = React.createClass({
 			spotDateEnd: this.refs.endDate.value === '' ? new Date(this.state.spot.get('spotDateEnd')) : new Date(this.refs.endDate.value)
 		});
 		$('#modaly').modal('hide');
+		this.dispatcher.trigger('changed');
 	},
 	addJournalEntry: function addJournalEntry() {
 		var _this7 = this;
@@ -36828,11 +36844,9 @@ var ProfileComponent = require('./components/ProfileComponent');
 var TripsComponent = require('./components/TripComponent');
 var SpotComponent = require('./components/SpotComponent');
 var CommunityPageComponent = require('./components/CommunityPageComponent');
+var _ = require('backbone/node_modules/underscore/underscore-min');
 
 Parse.initialize('SReTPFlNUeFnSqrBx33yNVHKDqR0jrY6BB2l6E47', 'XGMgOrJcA5H1O3jc7OwPVyt0n9oo6BXiJsD7Gptm');
-
-undefined.dispatcher = {};
-_.extend(undefined.dispatcher, Backbone.Events);
 
 var Router = Backbone.Router.extend({
 	routes: {
@@ -36857,10 +36871,10 @@ var Router = Backbone.Router.extend({
 		ReactDOM.render(React.createElement(ProfileComponent, { router: r }), document.getElementById('app'));
 	},
 	trip: function trip(id) {
-		ReactDOM.render(React.createElement(TripsComponent, { dispatcher: this.dispatcher, trip: id, router: r }), document.getElementById('app'));
+		ReactDOM.render(React.createElement(TripsComponent, { trip: id, router: r }), document.getElementById('app'));
 	},
 	spot: function spot(id) {
-		ReactDOM.render(React.createElement(SpotComponent, { dispatcher: this.dispatcher, spot: id, router: r }), document.getElementById('app'));
+		ReactDOM.render(React.createElement(SpotComponent, { spot: id, router: r }), document.getElementById('app'));
 	},
 	community: function community() {
 		ReactDOM.render(React.createElement(CommunityPageComponent, { router: r }), document.getElementById('app'));
@@ -36872,7 +36886,7 @@ Backbone.history.start();
 
 ReactDOM.render(React.createElement(NavComponent, { router: r }), document.getElementById('nav'));
 
-},{"./components/CommunityPageComponent":178,"./components/HomePageComponent":180,"./components/LoginRegisterComponent":182,"./components/NavComponent":183,"./components/ProfileComponent":185,"./components/SpotComponent":186,"./components/TripComponent":187,"backbone":1,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],190:[function(require,module,exports){
+},{"./components/CommunityPageComponent":178,"./components/HomePageComponent":180,"./components/LoginRegisterComponent":182,"./components/NavComponent":183,"./components/ProfileComponent":185,"./components/SpotComponent":186,"./components/TripComponent":187,"backbone":1,"backbone/node_modules/underscore/underscore-min":2,"bootstrap":4,"jquery":18,"react":174,"react-dom":19}],190:[function(require,module,exports){
 'use strict';
 
 module.exports = Parse.Object.extend({

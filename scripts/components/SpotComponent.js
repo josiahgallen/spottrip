@@ -121,9 +121,14 @@ module.exports = React.createClass({
 			this.state.needChange++;
 			this.setState({needChange: this.state.needChange});
 		})
+		this.dispatcher.on('changed', () => {
+			this.state.needChange++;
+			this.setState({needChange: this.state.needChange});
+		})
 		return (
 			<div>
 				<h1 className="pageHeader">{this.state.spot ? this.state.spot.get('spotName') : ''}</h1>
+				<h4 className="dateHeading">{this.state.spot ? this.state.spot.get('spotDateStart').toDateString() +' - '+ this.state.spot.get('spotDateEnd').toDateString() : ''}</h4>
 				<BreadCrumbsBarComponent>
 					<li><a href="#profile">Profile</a></li>
 					<li><a href={this.state.spot ? '#trip/'+this.state.spot.get('tripId').id : '#trip'}>My Trip</a></li>
@@ -283,6 +288,7 @@ module.exports = React.createClass({
 			</div>
 		);
 		this.setState({editPic: this.state.editPic});
+		this.dispatcher.trigger('changed');
 	},
 	savePicChanges: function() {
 		this.found.save({
@@ -290,7 +296,7 @@ module.exports = React.createClass({
 			caption: document.getElementById('pictureCaptionChange').value
 		})
 		$('#modaly').modal('hide');
-		this.setState({needChange: 1});
+		this.dispatcher.trigger('changed');
 	},
 	editEntry: function() {
 		this.entryFound = this.state.entries.find((element, index) => {
@@ -307,6 +313,7 @@ module.exports = React.createClass({
 			</div>
 		);
 		this.setState({editEntry: this.state.editEntry});
+		this.dispatcher.trigger('changed');
 	},
 	saveEntryChanges: function() {
 		console.log('entryChange');
@@ -315,7 +322,7 @@ module.exports = React.createClass({
 			entry: document.getElementById('entryChange').value
 		})
 		$('#modaly').modal('hide');
-		this.setState({needChange: 1});
+		this.dispatcher.trigger('changed');
 	},
 	deleteOnePicture: function() {
 		var answer = confirm('This Picture Will be permanetly deleted!');
@@ -406,7 +413,6 @@ module.exports = React.createClass({
 	},
 	onPicModalShow: function() {
 		$(this.refs.picModal).modal('show');
-		this.props.dispatcher.trigger('test');//////
 	},
 	onFullPicModalShow: function() {
 		$(this.refs.picture.id)
@@ -422,7 +428,7 @@ module.exports = React.createClass({
 			spotDateEnd: this.refs.endDate.value === '' ? new Date (this.state.spot.get('spotDateEnd')) : new Date (this.refs.endDate.value)
 		})
 		$('#modaly').modal('hide');
-		
+		this.dispatcher.trigger('changed');
 	},
 	addJournalEntry: function() {
 		var newEntry = new JournalEntryModel({

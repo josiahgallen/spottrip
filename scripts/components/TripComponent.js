@@ -130,7 +130,6 @@ module.exports = React.createClass({
 		var pictureList = [];
 		var entries = [];
 		var buttons = [];
-
 		
 		if(this.state.trip) {
 			if(Parse.User.current() && Parse.User.current().id === this.state.trip.get('userId').id) {
