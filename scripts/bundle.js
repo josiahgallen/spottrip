@@ -34581,11 +34581,15 @@ module.exports = React.createClass({
 },{"../models/PictureModel":191,"../models/TripModel":194,"react":174}],181:[function(require,module,exports){
 'use strict';
 var React = require('react');
+var Backbone = require('backbone');
 
 module.exports = React.createClass({
 	displayName: 'exports',
 
 	render: function render() {
+		var dateLabel = 'Trip';
+		var currentPage = Backbone.history.getFragment();
+		currentPage !== 'profile' ? dateLabel = 'Spot' : '';
 		return React.createElement(
 			'div',
 			null,
@@ -34604,14 +34608,17 @@ module.exports = React.createClass({
 				React.createElement(
 					'label',
 					null,
-					'Trip Start '
+					dateLabel,
+					' Start '
 				),
 				React.createElement('br', null),
 				React.createElement('input', { className: 'infoWindowInput', ref: 'endDate', type: 'date' }),
 				React.createElement(
 					'label',
 					null,
-					' Trip End '
+					' ',
+					dateLabel,
+					' End '
 				),
 				React.createElement('br', null),
 				React.createElement(
@@ -34629,7 +34636,7 @@ module.exports = React.createClass({
 	}
 });
 
-},{"react":174}],182:[function(require,module,exports){
+},{"backbone":1,"react":174}],182:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -35317,7 +35324,8 @@ module.exports = React.createClass({
 			entries: [],
 			pictures: [],
 			editPic: [],
-			editEntry: []
+			editEntry: [],
+			needChange: 0
 		};
 	},
 	componentWillMount: function componentWillMount() {
@@ -35346,17 +35354,18 @@ module.exports = React.createClass({
 				title: spot.get('spotName'),
 				animation: google.maps.Animation.DROP
 			});
-			console.log(spot.get('tripId').id);
 			_this.setState({ map: _this.map, spot: spot, tripName: spot.get('tripId').get('tripName') });
 		}, function (err) {
 			console.log(err);
 		});
 	},
 	render: function render() {
+		var _this2 = this;
+
 		var pictureList = [];
 		var entryList = [];
 		var slides = [];
-
+		var buttons = [];
 		slides = this.state.pictures.map(function (picture, index) {
 			var classNameString = 'item personalItem';
 			if (index === 0) {
@@ -35382,7 +35391,50 @@ module.exports = React.createClass({
 				)
 			);
 		});
+		if (this.state.spot) {
+			if (Parse.User.current() && Parse.User.current().id === this.state.spot.get('tripId').get('userId').id) {
+				buttons.push(React.createElement(
+					'div',
+					{ key: 'origButtons' },
+					React.createElement(
+						'button',
+						{ onClick: this.onModalShow, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+						React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
+					),
+					React.createElement('br', null),
+					React.createElement(
+						'button',
+						{ onClick: this.onPicModalShow, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+						React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
+					),
+					React.createElement('br', null),
+					React.createElement(
+						'button',
+						{ onClick: this.editTrip, title: 'Edit Spot', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+						React.createElement('span', { className: 'glyphicon glyphicon-edit', 'aria-hidden': 'true' })
+					),
+					React.createElement('br', null),
+					React.createElement(
+						'button',
+						{ onClick: this.deleteModal, title: 'Delete Spot', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+						React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
+					)
+				));
 
+				if (slides.length > 0) {
+					buttons.unshift(React.createElement(
+						'div',
+						{ key: 'slideShowButton' },
+						React.createElement(
+							'button',
+							{ onClick: this.onSlideShow, title: 'Launch Slide Show', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+							React.createElement('span', { className: 'glyphicon glyphicon-blackboard', 'aria-hidden': 'true' })
+						),
+						React.createElement('br', null)
+					));
+				}
+			}
+		}
 		pictureList = this.state.pictures.map(function (picture) {
 			return React.createElement(
 				'option',
@@ -35396,6 +35448,22 @@ module.exports = React.createClass({
 				{ key: entry.id, value: entry.id },
 				entry.get('title')
 			);
+		});
+		this.dispatcher.on('picAdded', function () {
+			_this2.state.needChange++;
+			_this2.setState({ needChange: _this2.state.needChange });
+		});
+		this.dispatcher.on('entryAdded', function () {
+			_this2.state.needChange++;
+			_this2.setState({ needChange: _this2.state.needChange });
+		});
+		this.dispatcher.on('picDeleted', function () {
+			_this2.state.needChange++;
+			_this2.setState({ needChange: _this2.state.needChange });
+		});
+		this.dispatcher.on('entryDeleted', function () {
+			_this2.state.needChange++;
+			_this2.setState({ needChange: _this2.state.needChange });
 		});
 		return React.createElement(
 			'div',
@@ -35444,35 +35512,7 @@ module.exports = React.createClass({
 			React.createElement(
 				'div',
 				{ className: 'addMediaButtonsWrapper' },
-				React.createElement(
-					'button',
-					{ onClick: this.onSlideShow, title: 'Launch Slide Show', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-blackboard', 'aria-hidden': 'true' })
-				),
-				React.createElement('br', null),
-				React.createElement(
-					'button',
-					{ onClick: this.onModalShow, title: 'Add Journal Entry', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-pencil', 'aria-hidden': 'true' })
-				),
-				React.createElement('br', null),
-				React.createElement(
-					'button',
-					{ onClick: this.onPicModalShow, title: 'Add Photo', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-camera', 'aria-hidden': 'true' })
-				),
-				React.createElement('br', null),
-				React.createElement(
-					'button',
-					{ onClick: this.editTrip, title: 'Edit Spot', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-edit', 'aria-hidden': 'true' })
-				),
-				React.createElement('br', null),
-				React.createElement(
-					'button',
-					{ onClick: this.deleteModal, title: 'Delete Spot', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
-				)
+				buttons
 			),
 			React.createElement(AddMediaComponent, { dispatcher: this.dispatcher, picture: this.state.newPic, spot: this.props.spot, onPictureQuery: this.onPictureQuery }),
 			React.createElement(AddJournalEntryComponent, { dispatcher: this.dispatcher, entry: this.state.newEntry, spot: this.props.spot, onEntryQuery: this.onEntryQuery }),
@@ -35741,7 +35781,6 @@ module.exports = React.createClass({
 							React.createElement(
 								'div',
 								{ className: 'carousel-inner', role: 'listbox' },
-								slide1,
 								slides
 							),
 							React.createElement(
@@ -35771,10 +35810,10 @@ module.exports = React.createClass({
 		);
 	},
 	editPic: function editPic() {
-		var _this2 = this;
+		var _this3 = this;
 
 		this.found = this.state.pictures.find(function (element, index) {
-			if (element.id === _this2.refs.picList.value) return element;
+			if (element.id === _this3.refs.picList.value) return element;
 		});
 		this.state.editPic = [];
 		this.state.editPic.push(React.createElement(
@@ -35809,10 +35848,10 @@ module.exports = React.createClass({
 		this.setState({ needChange: 1 });
 	},
 	editEntry: function editEntry() {
-		var _this3 = this;
+		var _this4 = this;
 
 		this.entryFound = this.state.entries.find(function (element, index) {
-			if (element.id === _this3.refs.entryList.value) return element;
+			if (element.id === _this4.refs.entryList.value) return element;
 		});
 		this.state.editEntry = [];
 		this.state.editEntry.push(React.createElement(
@@ -35848,10 +35887,20 @@ module.exports = React.createClass({
 		this.setState({ needChange: 1 });
 	},
 	deleteOnePicture: function deleteOnePicture() {
+		var _this5 = this;
+
 		var answer = confirm('This Picture Will be permanetly deleted!');
 		if (answer) {
 			this.found.destroy({
 				success: function success(object) {
+					var filtered = 0;
+					_this5.state.pictures.forEach(function (element, index) {
+						if (element.id === object.id) {
+							filtered = index;
+						}
+					});
+					filtered = _this5.state.pictures.splice(filtered, 1);
+					_this5.setState({ pictures: _this5.state.pictures });
 					var statQuery = new Parse.Query(StatsModel);
 					statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
 						stats.forEach(function (stat) {
@@ -35870,14 +35919,24 @@ module.exports = React.createClass({
 				}
 			});
 			$('#modaly').modal('hide');
-			this.setState({ needChange: 1 });
+			this.dispatcher.trigger('picDeleted');
 		}
 	},
 	deleteOneEntry: function deleteOneEntry() {
+		var _this6 = this;
+
 		var answer = confirm('This Journal Entry will be permanetly deleted!');
 		if (answer) {
 			this.entryFound.destroy({
 				success: function success(object) {
+					var filtered = 0;
+					_this6.state.entries.forEach(function (element, index) {
+						if (element.id === object.id) {
+							filtered = index;
+						}
+					});
+					filtered = _this6.state.entries.splice(filtered, 1);
+					_this6.setState({ entries: _this6.state.entries });
 					var statQuery = new Parse.Query(StatsModel);
 					statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
 						stats.forEach(function (stat) {
@@ -35896,7 +35955,7 @@ module.exports = React.createClass({
 				}
 			});
 			$('#modaly').modal('hide');
-			this.setState({ needChange: 1 });
+			this.dispatcher.trigger('entryDeleted');
 		}
 	},
 	onSlideShow: function onSlideShow() {
@@ -35913,6 +35972,7 @@ module.exports = React.createClass({
 	},
 	onPicModalShow: function onPicModalShow() {
 		$(this.refs.picModal).modal('show');
+		this.props.dispatcher.trigger('test'); //////
 	},
 	onFullPicModalShow: function onFullPicModalShow() {
 		$(this.refs.picture.id);
@@ -35928,10 +35988,9 @@ module.exports = React.createClass({
 			spotDateEnd: this.refs.endDate.value === '' ? new Date(this.state.spot.get('spotDateEnd')) : new Date(this.refs.endDate.value)
 		});
 		$('#modaly').modal('hide');
-		this.forceUpdate();
 	},
 	addJournalEntry: function addJournalEntry() {
-		var _this4 = this;
+		var _this7 = this;
 
 		var newEntry = new JournalEntryModel({
 			title: this.refs.journalTitle.value,
@@ -35940,7 +35999,7 @@ module.exports = React.createClass({
 			tripId: new TripModel({ objectId: this.state.spot.get('tripId').id })
 		});
 		newEntry.save().then(function (entry) {
-			_this4.setState({ newEntry: entry });
+			_this7.setState({ newEntry: entry });
 			var statQuery = new Parse.Query(StatsModel);
 			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
 				stats.forEach(function (stat) {
@@ -35952,21 +36011,20 @@ module.exports = React.createClass({
 			}, function (err) {
 				console.log(err);
 			});
-			_this4.dispatcher.trigger('entryAdded', entry);
+			_this7.dispatcher.trigger('entryAdded', entry);
 		});
 		$(this.refs.myModal).modal('hide');
 		this.refs.journalTitle.value = '';
 		this.refs.entry.value = '';
 	},
 	addPicture: function addPicture() {
-		var _this5 = this;
+		var _this8 = this;
 
 		var file = this.refs.addPicture.files[0];
 		var picLabel;
 		var formatTitle = this.refs.title.value.split(' ').join('');
 		formatTitle.length > 0 ? picLabel = formatTitle : picLabel = 'picture';
 		var parseFile = new Parse.File(picLabel + '.png', file);
-		console.log('addPicture', this.props.spot);
 		var pic = new PictureModel({
 			spotId: new SpotModel({ objectId: this.props.spot }),
 			title: this.refs.title.value,
@@ -35976,7 +36034,7 @@ module.exports = React.createClass({
 		pic.set('picture', parseFile);
 		pic.save().then(function (pic) {
 			console.log(pic);
-			_this5.setState({ newPic: pic });
+			_this8.setState({ newPic: pic });
 			var statQuery = new Parse.Query(StatsModel);
 			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
 				stats.forEach(function (stat) {
@@ -35988,12 +36046,12 @@ module.exports = React.createClass({
 			}, function (err) {
 				console.log(err);
 			});
-			if (_this5.refs.feature.value === 'yes') {
-				_this5.state.spot.get('tripId').save({
+			if (_this8.refs.feature.value === 'yes') {
+				_this8.state.spot.get('tripId').save({
 					featurePic: pic
 				});
 			}
-			_this5.dispatcher.trigger('picAdded', pic);
+			_this8.dispatcher.trigger('picAdded', pic);
 		});
 		$(this.refs.picModal).modal('hide');
 		this.refs.addPicture.value = '';
@@ -36010,6 +36068,8 @@ module.exports = React.createClass({
 		console.log('start delete');
 		var answer = this.refs.deleteConfirm.value;
 		if (answer === this.state.spot.get('spotName')) {
+			var numPics = this.state.pictures.length;
+			var numEntries = this.state.entries.length;
 			Parse.Object.destroyAll(this.state.entries, {
 				success: function success(entry) {
 					console.log('all journal entries destroyed');
@@ -36035,12 +36095,15 @@ module.exports = React.createClass({
 							var pics = stat.get('pictures');
 							var blogs = stat.get('blogs');
 							var spots = stat.get('spots');
-							pics > 0 ? pics = pics - 1 : pics = pics;
-							blogs > 0 ? blogs = blogs - 1 : blogs = blogs;
+							console.log(pics, blogs, spots);
+							spots = spots - 1;
+							pics = pics - numPics;
+							blogs = blogs - numEntries;
+							console.log(pics, blogs, spots);
 							stat.save({
 								pictures: pics,
 								blogs: blogs,
-								spots: spots - 1
+								spots: spots
 							});
 						});
 					}, function (err) {
@@ -36097,6 +36160,7 @@ module.exports = React.createClass({
 			$('#myInput').show();
 		});
 		var query = new Parse.Query(TripModel);
+		query.include('userId');
 		query.get(this.props.trip).then(function (trip) {
 			_this.setState({ trip: trip });
 		}, function (err) {
@@ -36188,6 +36252,27 @@ module.exports = React.createClass({
 		var pictures = [];
 		var pictureList = [];
 		var entries = [];
+		var buttons = [];
+
+		if (this.state.trip) {
+			if (Parse.User.current() && Parse.User.current().id === this.state.trip.get('userId').id) {
+				buttons.push(React.createElement(
+					'div',
+					{ key: 'buttons' },
+					React.createElement(
+						'button',
+						{ onClick: this.editTrip, title: 'Edit Trip', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+						React.createElement('span', { className: 'glyphicon glyphicon-edit', 'aria-hidden': 'true' })
+					),
+					React.createElement('br', null),
+					React.createElement(
+						'button',
+						{ onClick: this.deleteModal, title: 'Delete Trip', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
+						React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
+					)
+				));
+			}
+		}
 
 		myList = this.state.spots.map(function (spot) {
 			return React.createElement(
@@ -36269,7 +36354,7 @@ module.exports = React.createClass({
 			),
 			React.createElement(
 				SpotsPortalComponent,
-				{ myList: myList, newestListItem: newSpot, listTitle: 'Trip Spots' },
+				{ router: this.props.router, myList: myList, newestListItem: newSpot, listTitle: 'Trip Spots' },
 				React.createElement('div', { ref: 'map' })
 			),
 			React.createElement(
@@ -36289,17 +36374,7 @@ module.exports = React.createClass({
 			React.createElement(
 				'div',
 				{ className: 'addMediaButtonsWrapper' },
-				React.createElement(
-					'button',
-					{ onClick: this.editTrip, title: 'Edit Trip', type: 'button', className: 'btn btn-primary hoverButton bottomButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-edit', 'aria-hidden': 'true' })
-				),
-				React.createElement('br', null),
-				React.createElement(
-					'button',
-					{ onClick: this.deleteModal, title: 'Delete Trip', type: 'button', className: 'btn btn-primary hoverButton', dataToggle: 'modal', dataTarget: '.bs-example-modal-lg' },
-					React.createElement('span', { className: 'glyphicon glyphicon-trash', 'aria-hidden': 'true' })
-				)
+				buttons
 			),
 			React.createElement(
 				'div',
@@ -36495,6 +36570,9 @@ module.exports = React.createClass({
 		console.log('start delete');
 		var answer = this.refs.deleteConfirm.value;
 		if (answer === this.state.trip.get('tripName')) {
+			var numSpots = this.state.spots.length;
+			var numPics = this.state.pictures.length;
+			var numEntries = this.state.entries.length;
 			Parse.Object.destroyAll(this.state.entries, {
 				success: function success(entry) {
 					console.log('all journal entries destroyed');
@@ -36528,9 +36606,9 @@ module.exports = React.createClass({
 							var blogs = stat.get('blogs');
 							var spots = stat.get('spots');
 							var trips = stat.get('trips');
-							pics > 0 ? pics = pics - 1 : pics = pics;
-							blogs > 0 ? blogs = blogs - 1 : blogs = blogs;
-							spots > 0 ? spots = spots - 1 : spots = spots;
+							pics = pics - numPics;
+							blogs = blogs - numEntries;
+							spots = spots - numSpots;
 							stat.save({
 								pictures: pics,
 								blogs: blogs,
@@ -36585,49 +36663,55 @@ module.exports = React.createClass({
 	componentWillMount: function componentWillMount() {
 		var _this = this;
 
-		var statQuery = new Parse.Query(StatsModel);
-		statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
-			stats.forEach(function (stat) {
-				var spots = stat.get('spots');
-				var trips = stat.get('trips');
-				var pics = stat.get('pictures');
-				var entries = stat.get('blogs');
-				var rank = 'Beginner';
-				var combined = [];
-				combined.push(spots, trips, pics, entries);
-				var reduced = combined.reduce(function (a, b) {
-					return a + b;
+		if (Parse.User.current()) {
+			var statQuery = new Parse.Query(StatsModel);
+			statQuery.equalTo('userId', new Parse.User({ objectId: Parse.User.current().id })).find().then(function (stats) {
+				stats.forEach(function (stat) {
+					var spots = stat.get('spots');
+					var trips = stat.get('trips');
+					var pics = stat.get('pictures');
+					var entries = stat.get('blogs');
+					var rank = 'Beginner';
+					var combined = [];
+					combined.push(spots, trips, pics, entries);
+					var reduced = combined.reduce(function (a, b) {
+						return a + b;
+					});
+					if (reduced >= 20) {
+						rank = 'Journeyman';
+					} else if (reduced < 20 && reduced >= 15) {
+						rank = 'Well Traveled';
+					} else if (reduced < 15 && reduced >= 10) {
+						rank = 'Getting Around';
+					} else if (reduced < 10 && reduced >= 5) {
+						rank = 'Novice';
+					} else if (reduced < 5) {
+						rank = 'Beginner';
+					}
+					_this.setState({
+						trips: trips,
+						spots: spots,
+						pics: pics,
+						entries: entries,
+						rank: rank
+					});
 				});
-				if (reduced >= 20) {
-					rank = 'Journeyman';
-				} else if (reduced < 20 && reduced >= 15) {
-					rank = 'Well Traveled';
-				} else if (reduced < 15 && reduced >= 10) {
-					rank = 'Getting Around';
-				} else if (reduced < 10 && reduced >= 5) {
-					rank = 'Novice';
-				} else if (reduced < 5) {
-					rank = 'Beginner';
-				}
-				console.log(rank);
-				_this.setState({
-					trips: trips,
-					spots: spots,
-					pics: pics,
-					entries: entries,
-					rank: rank
-				});
+			}, function (err) {
+				console.log(err);
 			});
-		}, function (err) {
-			console.log(err);
-		});
+		}
 	},
 	render: function render() {
-		console.log(this.state.rank);
-
 		var currentURL = Backbone.history.getFragment();
 		var buttonTitle = 'Start a new Trip';
 		currentURL.indexOf('trip') > -1 ? buttonTitle = 'Add a new Spot' : '';
+		var statHeadings = ['Trips', 'Spots', 'BlogEntries', 'Picture Uploads'];
+
+		if (!Parse.User.current()) {
+			statHeadings.forEach(function (item, index, array) {
+				array[index] = 'Stats Unavailable, Please Login';
+			});
+		}
 		return React.createElement(
 			'div',
 			null,
@@ -36674,7 +36758,7 @@ module.exports = React.createClass({
 								{ className: 'badge' },
 								this.state.trips
 							),
-							'Trips'
+							statHeadings[0]
 						),
 						React.createElement(
 							'li',
@@ -36684,7 +36768,7 @@ module.exports = React.createClass({
 								{ className: 'badge' },
 								this.state.spots
 							),
-							'Spots'
+							statHeadings[1]
 						),
 						React.createElement(
 							'li',
@@ -36694,7 +36778,7 @@ module.exports = React.createClass({
 								{ className: 'badge' },
 								this.state.entries
 							),
-							'Blog Entries'
+							statHeadings[2]
 						),
 						React.createElement(
 							'li',
@@ -36704,7 +36788,7 @@ module.exports = React.createClass({
 								{ className: 'badge' },
 								this.state.pics
 							),
-							'Picture Uploads'
+							statHeadings[3]
 						)
 					)
 				)
@@ -36747,6 +36831,9 @@ var CommunityPageComponent = require('./components/CommunityPageComponent');
 
 Parse.initialize('SReTPFlNUeFnSqrBx33yNVHKDqR0jrY6BB2l6E47', 'XGMgOrJcA5H1O3jc7OwPVyt0n9oo6BXiJsD7Gptm');
 
+undefined.dispatcher = {};
+_.extend(undefined.dispatcher, Backbone.Events);
+
 var Router = Backbone.Router.extend({
 	routes: {
 		'': 'home',
@@ -36770,10 +36857,10 @@ var Router = Backbone.Router.extend({
 		ReactDOM.render(React.createElement(ProfileComponent, { router: r }), document.getElementById('app'));
 	},
 	trip: function trip(id) {
-		ReactDOM.render(React.createElement(TripsComponent, { trip: id, router: r }), document.getElementById('app'));
+		ReactDOM.render(React.createElement(TripsComponent, { dispatcher: this.dispatcher, trip: id, router: r }), document.getElementById('app'));
 	},
 	spot: function spot(id) {
-		ReactDOM.render(React.createElement(SpotComponent, { spot: id, router: r }), document.getElementById('app'));
+		ReactDOM.render(React.createElement(SpotComponent, { dispatcher: this.dispatcher, spot: id, router: r }), document.getElementById('app'));
 	},
 	community: function community() {
 		ReactDOM.render(React.createElement(CommunityPageComponent, { router: r }), document.getElementById('app'));

@@ -88,6 +88,9 @@ textarea {
   border-radius: 0;
   padding: 1em; }
 
+.list-group a.list-group-item:hover {
+  background-color: #B2D0FF; }
+
 .navbar-brand {
   font-family: "Grand Hotel", cursive;
   font-size: 2em; }
@@ -403,3 +406,7 @@ nav #createATripButton:hover {
 @media screen and (min-width: 1450px) {
   .logo {
     width: 75%; } }
+
+@media screen and (min-width: 1590px) {
+  .logo {
+    width: 60%; } }
