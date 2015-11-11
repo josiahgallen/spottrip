@@ -270,7 +270,9 @@ nav #createATripButton:hover {
   right: 0; }
 
 .hoverButton {
-  display: block; }
+  display: block;
+  margin-top: .5em;
+  font-size: 12px; }
 
 .hoverButton:focus {
   background-color: gray; }
@@ -380,6 +382,10 @@ nav #createATripButton:hover {
 
 .personalItem {
   background-color: black; }
+
+@media screen and (min-width: 530px) {
+  .hoverButton {
+    font-size: 1.5em; } }
 
 @media screen and (min-width: 768px) {
   .pictureModal {

@@ -34424,7 +34424,7 @@ module.exports = React.createClass({
 			null,
 			React.createElement(
 				'div',
-				{ id: 'carousel-example-generic', className: 'carousel slide', 'data-ride': 'carousel' },
+				{ id: 'carousel-example-generic', className: 'carousel slide', 'data-interval': '10000', 'data-ride': 'carousel' },
 				'//Indicators',
 				React.createElement(
 					'ol',
@@ -35339,6 +35339,7 @@ module.exports = React.createClass({
 		$('#myModal').on('shown.bs.modal', function () {
 			$('#myInput').show();
 		});
+
 		this.dispatcher = {};
 		_.extend(this.dispatcher, Backbone.Events);
 		var query = new Parse.Query(SpotModel);
